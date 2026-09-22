@@ -21,7 +21,6 @@ from textwrap import dedent
 import pandas as pd
 import requests
 import streamlit as st
-import streamlit.components.v1 as components
 
 import news_providers as npv
 
@@ -1683,7 +1682,7 @@ with st.sidebar:
         st.download_button(
             label="Download Briefing CSV",
             data=csv,
-            file_name=f"audit_intel_briefing_{datetime.utcnow().strftime('%Y%m%d_%H%M')}.csv",
+            file_name=f"audit_intel_briefing_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M')}.csv",
             mime="text/csv",
             use_container_width=True,
             key="download_csv_sidebar",
@@ -1940,7 +1939,7 @@ html,body{{margin:0;padding:0;background:transparent;font-family:Inter,Arial,san
 </body>
 </html>
 """
-    components.html(html, height=300, scrolling=False)
+    st.iframe(html, height=300)
 
 
 def render_category_grid(category, rows):
