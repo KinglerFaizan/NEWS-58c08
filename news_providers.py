@@ -30,7 +30,7 @@ PROVIDERS = {
         "signup": "https://newsdata.io/register",
         "max_query_len": 100,
         "page_size": 10,
-        "max_pages": 3,
+        "max_pages": 6,
         "tier": 1,
     },
 }
@@ -68,21 +68,34 @@ def _is_quota_error(message: str, status_code=None) -> bool:
 # =========================================================
 
 QUERIES_NEWSDATA = {
+    # Keep queries short and explicit for reliable NewsData.io retrieval.
+    # The category hint is retained on every result and is used by app.py
+    # as contextual evidence during classification.
     "Transformation": [
-        'bank AND ("digital transformation" OR "core banking" OR "digital banking")',
-        'banking AND ("artificial intelligence" OR cloud OR automation OR cybersecurity)',
+        "banking digital transformation",
+        "banking artificial intelligence",
+        "banking cloud automation",
+        "core banking technology",
     ],
     "Regulation": [
-        'bank AND (regulation OR compliance OR supervision OR enforcement)',
-        'bank AND ("money laundering" OR AML OR KYC OR sanctions OR penalty)',
+        "banking regulation",
+        "banking compliance",
+        "banking AML KYC",
+        "bank enforcement",
     ],
     "People": [
-        'bank AND ("chief risk officer" OR "audit committee" OR "internal audit")',
-        'bank AND (appointed OR resigns OR "new CEO" OR board OR leadership)',
+        "bank CEO appointment",
+        "bank leadership",
+        "bank chief risk officer",
+        "bank internal audit",
     ],
     "Global Banks": [
-        'HSBC OR JPMorgan OR Citigroup OR Barclays OR UBS OR "Deutsche Bank"',
-        'Goldman Sachs OR "Standard Chartered" OR "Bank of America" OR Wells Fargo OR Santander',
+        "HSBC banking",
+        "JPMorgan banking",
+        "Citigroup banking",
+        "Barclays UBS Deutsche Bank",
+        "Goldman Sachs Standard Chartered",
+        "Bank of America Wells Fargo Santander",
     ],
 }
 PROVIDER_QUERIES = {"newsdata": QUERIES_NEWSDATA}
