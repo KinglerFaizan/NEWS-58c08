@@ -1441,6 +1441,9 @@ def classify_category(title, description, hint=None):
 # 7. SIDEBAR CONTROL CENTER
 # ---------------------------------------------------------
 
+# Refresh flag must exist on every Streamlit rerun, including the first load.
+hard_refresh = False
+
 api_keys = get_api_keys()
 
 with st.sidebar:
