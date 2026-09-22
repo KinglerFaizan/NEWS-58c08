@@ -7,6 +7,7 @@ from urllib.parse import quote
 import pandas as pd
 import requests
 import streamlit as st
+import streamlit.components.v1 as components
 
 import news_providers as npv
 
@@ -78,19 +79,19 @@ section[data-testid="stSidebar"] .stButton>button:hover{background:#eef4ff!impor
 .quick-refresh .stButton>button{background:#1769ff!important;color:#fff!important;padding:12px!important;border-radius:9px!important}
 .section-head{display:flex;justify-content:space-between;align-items:end;margin:4px 0 16px}
 .section-title{font-size:27px;font-weight:900;letter-spacing:-.8px}.section-title .bolt{color:#6538ed}.section-sub{color:#7a8799;font-size:13px;margin-top:3px}.view-all{color:#1769ff;font-weight:800;font-size:13px}
-.feature-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:27px}
+.feature-shell{margin-bottom:26px}.feature-carousel{position:relative;background:#fff;border:1px solid #e7ebf2;border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,42,.07)}.feature-slide{display:none;grid-template-columns:36% 64%;height:285px}.feature-slide.active{display:grid}.feature-img{height:285px;background:#dbe4ef;overflow:hidden}.feature-img img{width:100%;height:100%;object-fit:cover}.feature-body{padding:28px 32px;display:flex;flex-direction:column;justify-content:center}.feature-kicker{font-size:10px;font-weight:900;letter-spacing:1px;color:#2563eb;text-transform:uppercase;margin-bottom:10px}.feature-title{font-size:25px;font-weight:900;line-height:1.25;letter-spacing:-.5px;color:#0f172a}.feature-title a{color:#0f172a;text-decoration:none}.feature-title a:hover{color:#2563eb}.feature-desc{font-size:13px;color:#64748b;line-height:1.55;margin-top:10px;max-width:720px}.feature-meta{font-size:11px;font-weight:800;color:#64748b;margin-top:16px}.feature-counter{position:absolute;right:22px;bottom:18px;font-size:11px;font-weight:900;color:#64748b;background:#f8fafc;border:1px solid #e5eaf1;border-radius:999px;padding:6px 10px}.feature-dots{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:6px}.feature-dot{width:7px;height:7px;border-radius:50%;background:#cbd5e1}.feature-dot.active{width:22px;border-radius:999px;background:#2563eb}
 .feature-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 3px 12px rgba(15,23,42,.07);border:1px solid #edf0f4}
 .feature-img{height:150px;background:#dbe4ef;overflow:hidden}.feature-img img{width:100%;height:100%;object-fit:cover}
 .feature-body{padding:12px 14px 15px}.feature-tag{display:inline-block;padding:4px 9px;border-radius:999px;font-size:9px;font-weight:900;background:#eef4ff;color:#4f46e5;margin-bottom:8px}
 .feature-title{font-size:16px;font-weight:850;line-height:1.35;min-height:65px}.feature-desc{font-size:11px;color:#7a8799;line-height:1.45;margin-top:7px;min-height:48px}.feature-meta{font-size:10px;font-weight:800;color:#64748b;margin-top:10px}
-.latest-wrap{background:transparent}.latest-card{display:flex;gap:18px;background:#fff;border:1px solid #edf0f4;border-radius:14px;padding:14px 16px;margin-bottom:12px;
-box-shadow:0 3px 12px rgba(15,23,42,.045);min-height:180px}.latest-image{width:310px;min-width:310px;height:175px;border-radius:9px;overflow:hidden;background:#e2e8f0}.latest-image img{width:100%;height:100%;object-fit:cover}
+.latest-wrap{background:transparent}.latest-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.latest-card{display:flex;gap:14px;background:#fff;border:1px solid #edf0f4;border-radius:14px;padding:14px 16px;margin-bottom:12px;
+box-shadow:0 3px 12px rgba(15,23,42,.045);min-height:170px}.latest-image{width:42%;min-width:42%;height:165px;border-radius:9px;overflow:hidden;background:#e2e8f0}.latest-image img{width:100%;height:100%;object-fit:cover}
 .latest-content{padding:3px 5px;flex:1}.latest-tags{margin-bottom:8px}.latest-tag{display:inline-block;border-radius:999px;padding:5px 10px;font-size:9px;font-weight:900;margin-right:7px;background:#eef4ff;color:#2563eb}
-.latest-title{font-size:20px;font-weight:850;line-height:1.3;margin-bottom:7px}.latest-title a{color:#0f172a;text-decoration:none}.latest-title a:hover{color:#2563eb}.latest-desc{font-size:12.5px;line-height:1.55;color:#64748b;max-width:850px}.latest-meta{margin-top:13px;font-size:11px;color:#64748b;font-weight:800}
+.latest-title{font-size:18px;font-weight:850;line-height:1.3;margin-bottom:7px}.latest-title a{color:#0f172a;text-decoration:none}.latest-title a:hover{color:#2563eb}.latest-desc{font-size:12px;line-height:1.55;color:#64748b;max-width:850px}.latest-meta{margin-top:13px;font-size:11px;color:#64748b;font-weight:800}
 .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}.filter-label{font-size:11px;font-weight:800;color:#94a3b8;margin:7px 5px 0 0}
 .stButton>button{border-radius:10px;font-weight:800}
-@media(max-width:1000px){.feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.header-search{display:none}}
-@media(max-width:650px){.feature-grid{grid-template-columns:1fr}.latest-card{flex-direction:column}.latest-image{width:100%;min-width:0}.brand-sub{display:none}}
+@media(max-width:1000px){.latest-grid{grid-template-columns:1fr}.header-search{display:none}.feature-slide{grid-template-columns:42% 58%;height:270px}.feature-img{height:270px}.feature-title{font-size:21px}}
+@media(max-width:650px){.feature-slide{grid-template-columns:1fr;height:auto}.feature-img{height:190px}.feature-body{padding:20px}.feature-title{font-size:20px}.latest-card{flex-direction:column}.latest-image{width:100%;min-width:0}.brand-sub{display:none}}
 </style>
 """,
     unsafe_allow_html=True,
@@ -216,7 +217,7 @@ def fmt_date(value):
 
 def card(row):
     title = escape(str(row.get("title") or "Untitled"))
-    desc = escape(str(row.get("description") or row.get("content") or "No description available."))[:430]
+    desc = escape(str(row.get("description") or row.get("content") or "No description available."))[:300]
     url = str(row.get("url") or "").strip()
     source = escape(str(row.get("source") or "Unknown"))
     category = escape(str(row.get("category") or "News"))
@@ -237,6 +238,67 @@ def card(row):
   </div>
 </div>
 """
+
+
+def render_featured_carousel(rows):
+    rows = rows[:4]
+    if not rows:
+        return
+
+    slides = []
+    dots = []
+    for idx, row in enumerate(rows):
+        title = escape(str(row.get("title") or "Untitled"))
+        desc = escape(str(row.get("description") or row.get("content") or ""))[:360]
+        category = escape(str(row.get("category") or "News"))
+        source = escape(str(row.get("source") or "Unknown"))
+        image = escape(str(row.get("image_url") or ""), quote=True)
+        url = str(row.get("url") or "").strip()
+        img_html = f'<img src="{image}" alt="" />' if image else '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:38px">◈</div>'
+        title_html = f'<a href="{escape(url, quote=True)}" target="_blank">{title}</a>' if url else title
+        active = " active" if idx == 0 else ""
+        slides.append(
+            f'<article class="feature-slide{active}">'
+            f'<div class="feature-img">{img_html}</div>'
+            f'<div class="feature-body">'
+            f'<div class="feature-kicker">{category} · Featured story</div>'
+            f'<div class="feature-title">{title_html}</div>'
+            f'<div class="feature-desc">{desc}</div>'
+            f'<div class="feature-meta">{source} &nbsp;•&nbsp; {fmt_date(row.get("published_at"))}</div>'
+            f'</div></article>'
+        )
+        dots.append(f'<span class="feature-dot{" active" if idx == 0 else ""}"></span>')
+
+    html = f"""
+<div class="feature-shell">
+  <div class="feature-carousel">
+    {''.join(slides)}
+    <div class="feature-counter"><span id="feature-index">1</span> / {len(rows)}</div>
+    <div class="feature-dots">{''.join(dots)}</div>
+  </div>
+</div>
+<script>
+(function() {{
+  const root = document.currentScript.parentElement;
+  const slides = root.querySelectorAll('.feature-slide');
+  const dots = root.querySelectorAll('.feature-dot');
+  const counter = root.querySelector('#feature-index');
+  let current = 0;
+  function show(i) {{
+    slides.forEach((s, n) => s.classList.toggle('active', n === i));
+    dots.forEach((d, n) => d.classList.toggle('active', n === i));
+    if (counter) counter.textContent = String(i + 1);
+  }}
+  if (slides.length > 1) {{
+    setInterval(() => {{
+      current = (current + 1) % slides.length;
+      show(current);
+    }}, 5000);
+  }}
+}})();
+</script>
+"""
+    components.html(html, height=305, scrolling=False)
 
 
 # ============================================================
@@ -329,36 +391,26 @@ st.markdown('</div>', unsafe_allow_html=True)
 active_category = st.session_state.get("active_category", "ALL")
 visible_news = news if active_category == "ALL" else [r for r in news if r.get("category") == active_category]
 
-featured = visible_news[:5]
+featured = visible_news[:4]
 if featured:
-    feature_html = '<div class="feature-grid">'
-    for idx, row in enumerate(featured, 1):
-        title = escape(str(row.get("title") or "Untitled"))
-        desc = escape(str(row.get("description") or row.get("content") or ""))[:155]
-        category = escape(str(row.get("category") or "News"))
-        source = escape(str(row.get("source") or "Unknown"))
-        image = escape(str(row.get("image_url") or ""), quote=True)
-        img = f'<img src="{image}" alt="" />' if image else '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:30px">◈</div>'
-        url = str(row.get("url") or "").strip()
-        title_html = f'<a href="{escape(url, quote=True)}" target="_blank" style="color:#0f172a;text-decoration:none">{title}</a>' if url else title
-        feature_html += f'<div class="feature-card"><div class="feature-img">{img}</div><div class="feature-body"><span class="feature-tag">{category}</span><div class="feature-title">{title_html}</div><div class="feature-desc">{desc}</div><div class="feature-meta">{source} &nbsp;•&nbsp; {fmt_date(row.get("published_at"))}</div></div></div>'
-    feature_html += '</div>'
-    st.markdown(feature_html, unsafe_allow_html=True)
+    render_featured_carousel(featured)
 
 # ============================================================
 # LATEST NEWS
 # ============================================================
 
 st.markdown(
-    '<div class="section-head"><div><div class="section-title">▣ Latest News &amp; Insights</div><div class="section-sub">Real-time updates from global sources relevant to audit, risk and compliance</div></div><div class="view-all">Sort by&nbsp; <b>Latest⌄</b></div></div>',
+    '<div class="section-head"><div><div class="section-title">▣ Latest News &amp; Insights</div><div class="section-sub">Real-time updates from global sources relevant to audit, risk and compliance</div></div><div class="view-all">Latest&nbsp;⌄</div></div>',
     unsafe_allow_html=True,
 )
 
 if not visible_news:
     st.markdown('<div class="empty"><h3>No banking stories were returned.</h3><p>Try another category or refresh the feed.</p></div>', unsafe_allow_html=True)
 else:
+    st.markdown('<div class="latest-grid">', unsafe_allow_html=True)
     for row in visible_news:
         st.markdown(card(row), unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ============================================================
 # FOOTER
