@@ -26,7 +26,7 @@ import requests
 PROVIDERS = {
     "newsdata": {
         "label": "NewsData.io",
-        "endpoint": "https://newsdata.io/api/1/news",
+        "endpoint": "https://newsdata.io/api/1/latest",
         "signup": "https://newsdata.io/register",
         "max_query_len": 100,
         "page_size": 10,
@@ -74,28 +74,20 @@ QUERIES_NEWSDATA = {
     "Transformation": [
         "banking digital transformation",
         "banking artificial intelligence",
-        "banking cloud automation",
-        "core banking technology",
     ],
     "Regulation": [
         "banking regulation",
         "banking compliance",
-        "banking AML KYC",
-        "bank enforcement",
     ],
     "People": [
         "bank CEO appointment",
         "bank leadership",
-        "bank chief risk officer",
-        "bank internal audit",
     ],
     "Global Banks": [
         "HSBC banking",
         "JPMorgan banking",
-        "Citigroup banking",
-        "Barclays UBS Deutsche Bank",
-        "Goldman Sachs Standard Chartered",
-        "Bank of America Wells Fargo Santander",
+        "Barclays Deutsche Bank",
+        "Bank of America Wells Fargo",
     ],
 }
 PROVIDER_QUERIES = {"newsdata": QUERIES_NEWSDATA}
@@ -120,13 +112,23 @@ def fetch_newsdata(query, api_key, from_date, page, cfg):
         "apikey": api_key,
         "q": query[: cfg["max_query_len"]],
         "language": "en",
-        "category": "business,technology",
         "size": 10,
     }
 
-    # Apply the UI lookback window. NewsData accepts from_date in YYYY-MM-DD.
+    # The Latest endpoint supports a 1–48 hour timeframe. The previous
+    # implementation sent from_date to /news, which is not the current
+    # Latest-endpoint pattern and could silently reduce/empty the feed.
+    # Keep the UI lookback for filtering locally, while using the supported
+    # timeframe parameter for the live request.
     if from_date:
-        params["from_date"] = from_date
+        try:
+            requested_hours = max(
+                1,
+                int((datetime.now(timezone.utc) - datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)).total_seconds() // 3600),
+            )
+        except Exception:
+            requested_hours = 48
+        params["timeframe"] = min(48, requested_hours)
 
     # NewsData uses an opaque cursor returned as nextPage.
     if page:
