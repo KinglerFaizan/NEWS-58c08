@@ -1733,6 +1733,10 @@ with st.sidebar:
 if "active_view" not in st.session_state:
     st.session_state.active_view = "All News"
 
+# Default refresh state for every Streamlit rerun.
+# The sidebar button sets this to True when explicitly clicked.
+hard_refresh = False
+
 view_options = [
     ("All News", "All News"),
     ("Transformation", "Transformation"),
