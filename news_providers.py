@@ -30,7 +30,7 @@ PROVIDERS = {
         "signup": "https://newsdata.io/register",
         "max_query_len": 100,
         "page_size": 10,
-        "max_pages": 1,
+        "max_pages": 3,
         "tier": 1,
     },
 }
@@ -102,11 +102,7 @@ def _blank_to_none(value):
 
 
 def fetch_newsdata(query, api_key, from_date, page, cfg):
-    # NewsData paginates with an opaque cursor, not an integer page number,
-    # so only page 1 is requested here; breadth comes from query variants.
-    if page > 1:
-        return [], 0
-
+    """Fetch one NewsData.io page and return its cursor for the next page."""
     params = {
         "apikey": api_key,
         "q": query[: cfg["max_query_len"]],
@@ -114,6 +110,15 @@ def fetch_newsdata(query, api_key, from_date, page, cfg):
         "category": "business,technology",
         "size": 10,
     }
+
+    # Apply the UI lookback window. NewsData accepts from_date in YYYY-MM-DD.
+    if from_date:
+        params["from_date"] = from_date
+
+    # NewsData uses an opaque cursor returned as nextPage.
+    if page:
+        params["page"] = page
+
     resp = requests.get(cfg["endpoint"], params=params, timeout=DEFAULT_TIMEOUT)
     try:
         payload = resp.json()
@@ -135,7 +140,6 @@ def fetch_newsdata(query, api_key, from_date, page, cfg):
         creator = a.get("creator")
         author = ", ".join(creator) if isinstance(creator, list) else (creator or "")
 
-        # NewsData returns "YYYY-MM-DD HH:MM:SS" in UTC
         pub = _blank_to_none(a.get("pubDate")) or ""
         if pub and "T" not in pub:
             pub = pub.replace(" ", "T") + "Z"
@@ -150,7 +154,8 @@ def fetch_newsdata(query, api_key, from_date, page, cfg):
             "published_at": pub,
             "author": author,
         })
-    return rows, payload.get("totalResults", 0)
+
+    return rows, payload.get("totalResults", 0), payload.get("nextPage")
 
 
 FETCHERS = {"newsdata": fetch_newsdata}
@@ -379,7 +384,7 @@ def deduplicate(records: list, fuzzy_threshold: float = 0.72) -> tuple:
 # =========================================================
 
 def build_jobs(api_keys: dict, provider_ids, categories=None):
-    """Expand NewsData category/query jobs."""
+    """Expand provider/category/query jobs. Pagination is handled per job."""
     jobs = []
     for pid in provider_ids:
         cfg = PROVIDERS[pid]
@@ -390,19 +395,18 @@ def build_jobs(api_keys: dict, provider_ids, categories=None):
             if categories and category not in categories:
                 continue
             for query in queries:
-                for page in range(1, cfg["max_pages"] + 1):
-                    jobs.append((pid, category, query, page, key, cfg))
+                jobs.append((pid, category, query, key, cfg))
     return jobs
 
 
 def _run_tier(provider_ids, api_keys, from_date, categories, max_workers,
               per_provider, errors):
     """
-    Execute one tier of providers in parallel.
+    Execute provider query jobs in parallel and walk NewsData cursor pages.
 
-    Returns (records, exhausted_set). A provider lands in `exhausted` when
-    every one of its requests failed AND at least one failure was a quota
-    refusal — i.e. the key is genuinely spent, not just erroring sporadically.
+    NewsData's free response is 10 articles per request and exposes an opaque
+    nextPage cursor for additional pages. We read up to max_pages per query,
+    stopping early when there is no cursor or the provider quota is reached.
     """
     jobs = build_jobs(api_keys, provider_ids, categories)
     if not jobs:
@@ -413,44 +417,62 @@ def _run_tier(provider_ids, api_keys, from_date, categories, max_workers,
     failures = {pid: 0 for pid in provider_ids}
     attempts = {pid: 0 for pid in provider_ids}
 
+    def run_job(pid, category, query, key, cfg):
+        page_token = None
+        all_rows = []
+        pages_read = 0
+
+        while pages_read < cfg.get("max_pages", 1):
+            rows, total, next_page = FETCHERS[pid](
+                query, key, from_date, page_token, cfg
+            )
+            all_rows.extend(rows)
+            pages_read += 1
+            if not next_page:
+                break
+            page_token = next_page
+
+        return all_rows, pages_read
+
     with ThreadPoolExecutor(max_workers=max_workers) as ex:
-        futures = {}
-        for pid, category, query, page, key, cfg in jobs:
-            fut = ex.submit(FETCHERS[pid], query, key, from_date, page, cfg)
-            futures[fut] = (pid, category, page)
+        futures = {
+            ex.submit(run_job, pid, category, query, key, cfg):
+                (pid, category)
+            for pid, category, query, key, cfg in jobs
+        }
 
         for fut in as_completed(futures):
-            pid, category, page = futures[fut]
-            attempts[pid] += 1
-            per_provider[pid]["requests"] += 1
-
+            pid, category = futures[fut]
             try:
-                rows, _total = fut.result()
+                rows, pages_read = fut.result()
+                per_provider[pid]["requests"] += pages_read
                 per_provider[pid]["articles"] += len(rows)
+                attempts[pid] += pages_read
+
                 for r in rows:
                     r["category_hint"] = category
                     r["providers"] = {pid}
                     raw.append(r)
 
             except QuotaExhausted as exc:
-                quota_hits[pid] += 1
+                attempts[pid] += 1
                 failures[pid] += 1
+                quota_hits[pid] += 1
+                per_provider[pid]["requests"] += 1
                 per_provider[pid]["quota_hits"] += 1
-                if quota_hits[pid] == 1:      # report once, not 26 times
+                if quota_hits[pid] == 1:
                     errors.append(
                         f"{PROVIDERS[pid]['label']}: quota reached — {exc}"
                     )
 
             except Exception as exc:
-                msg = str(exc)
+                attempts[pid] += 1
                 failures[pid] += 1
-                # Page-2 refusals on free tiers are a plan limit, not an outage
-                if page > 1 and any(w in msg.lower() for w in
-                                    ("upgrade", "developer", "limit", "paid", "plan")):
-                    quota_hits[pid] += 1
-                    continue
+                per_provider[pid]["requests"] += 1
                 per_provider[pid]["errors"] += 1
-                errors.append(f"{PROVIDERS[pid]['label']} · {category} (p{page}): {msg}")
+                errors.append(
+                    f"{PROVIDERS[pid]['label']} · {category}: {exc}"
+                )
 
     exhausted = {
         pid for pid in provider_ids
