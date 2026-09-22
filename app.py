@@ -201,6 +201,8 @@ def card(row):
     category = escape(str(row.get("category") or "News"))
     image = escape(str(row.get("image_url") or ""), quote=True)
 
+    # NewsData image_url is preferred. The provider also recovers og:image/twitter:image
+    # from the article page when NewsData does not return one.
     fallback_images = {
         "Global Banks": "https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=900&q=80",
         "Regulation": "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=80",
@@ -210,7 +212,7 @@ def card(row):
     }
     fallback = fallback_images.get(category, fallback_images["Global Banks"])
     img_src = image or fallback
-    img_html = f'<img src="{img_src}" alt="" onerror="this.onerror=null;this.src=\'{fallback}\';" />'
+    img_html = f'<img src="{img_src}" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'{fallback}\';" />'
     link = f'<a href="{escape(url, quote=True)}" target="_blank">{title}</a>' if url else title
 
     return f"""
