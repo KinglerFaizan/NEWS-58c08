@@ -1009,10 +1009,11 @@ def classify_category(title, description, hint=None):
         if scores[best_category] > 0:
             return best_category
 
-    # Coverage path: news_providers.py only submits banking-focused queries.
-    # If the headline/body omits the word "bank" but contains a strong
-    # category signal, use the provider's category hint as contextual evidence.
-    if hint in CATEGORIES and scores.get(hint, 0) > 0:
+    # Coverage path: news_providers.py submits category-specific banking queries.
+    # Trust that provider context when the article has no explicit category
+    # keyword in its headline/body. This prevents valid stories from being
+    # discarded simply because the publisher wrote a short headline.
+    if hint in CATEGORIES:
         return hint
 
     return None
@@ -1136,7 +1137,8 @@ def load_news(api_key, lookback_days, min_relevance, fuzzy_threshold, selected_c
             description,
             row.get("category_hint"),
         )
-        # Drop non-banking stories before relevance scoring and rendering.
+        # Drop only stories explicitly identified as non-banking. Provider
+        # category context is already constrained by banking-focused queries.
         if category is None or category not in categories:
             continue
 
