@@ -1,79 +1,37 @@
-""" 
-news_providers.py
------------------
-NewsData.io-only news ingestion layer for the Audit Intelligence briefing.
-
-The API key is never accepted from the UI. Configure NEWSDATA_API_KEY in
-the server environment or Streamlit secrets.
-"""
-
 from __future__ import annotations
 
 import re
-import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from difflib import SequenceMatcher
-from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
+from urllib.parse import quote, urlparse, urlunparse, parse_qsl, urlencode
+import xml.etree.ElementTree as ET
 
 import requests
 
-
-# =========================================================
-# 1. PROVIDER REGISTRY
-# =========================================================
 
 PROVIDERS = {
     "newsdata": {
         "label": "NewsData.io",
         "endpoint": "https://newsdata.io/api/1/latest",
-        "signup": "https://newsdata.io/register",
         "max_query_len": 100,
         "page_size": 10,
         "max_pages": 1,
-        "tier": 1,
+    },
+    "google_rss": {
+        "label": "Google News RSS",
+        "endpoint": "https://news.google.com/rss/search",
+        "max_query_len": 100,
+        "page_size": 100,
+        "max_pages": 1,
     },
 }
 
 DEFAULT_TIMEOUT = 15
 
-PRIMARY_PROVIDERS = ["newsdata"]
-RESERVE_PROVIDERS = []
-
-
-class QuotaExhausted(RuntimeError):
-    """Raised when a provider refuses a request because its limit is spent."""
-
-
-# Signals that a provider is out of quota rather than merely erroring.
-_QUOTA_MARKERS = (
-    "ratelimited", "rate limit", "rate-limit", "too many requests",
-    "quota", "exhausted", "limit reached", "limit exceeded",
-    "maximum requests", "daily limit", "upgrade", "requests per day",
-    "you have made too many", "apikeyexhausted", "429",
-)
-
-
-def _is_quota_error(message: str, status_code=None) -> bool:
-    if status_code in (429, 402):
-        return True
-    m = (message or "").lower()
-    return any(marker in m for marker in _QUOTA_MARKERS)
-
-
-# =========================================================
-# 2. QUERY SETS
-#    Each provider gets phrasing tuned to its own syntax limits.
-#    More variants = more distinct articles reaching the dedup stage.
-# =========================================================
-
-QUERIES_NEWSDATA = {
-    # Keep queries short and explicit for reliable NewsData.io retrieval.
-    # The category hint is retained on every result and is used by app.py
-    # as contextual evidence during classification.
+QUERIES = {
     "Transformation": [
         "banking digital transformation",
-        "banking artificial intelligence",
+        "bank artificial intelligence",
     ],
     "Regulation": [
         "banking regulation",
@@ -83,473 +41,343 @@ QUERIES_NEWSDATA = {
         "bank CEO appointment",
         "bank leadership",
     ],
+    "Cyber & Tech": [
+        "bank cybersecurity",
+        "bank cyber attack",
+    ],
     "Global Banks": [
-        "HSBC banking",
-        "JPMorgan banking",
-        "Barclays Deutsche Bank",
-        "Bank of America Wells Fargo",
+        "HSBC OR JPMorgan OR Barclays OR Deutsche Bank",
+        "Bank of America OR Wells Fargo OR Citi OR UBS",
     ],
 }
-PROVIDER_QUERIES = {"newsdata": QUERIES_NEWSDATA}
-CATEGORY_NAMES = list(QUERIES_NEWSDATA.keys())
+
+QUOTA_MARKERS = (
+    "ratelimited", "rate limit", "too many requests", "quota",
+    "exhausted", "limit reached", "limit exceeded", "daily limit",
+    "apikeyexhausted", "429",
+)
 
 
-# =========================================================
-# 3. PER-PROVIDER FETCH ADAPTERS
-#    Each returns: (list_of_normalized_records, total_reported)
-# =========================================================
+class QuotaExhausted(RuntimeError):
+    pass
 
-def _blank_to_none(value):
+
+def is_quota_error(message, status=None):
+    if status in (402, 429):
+        return True
+    text = str(message or "").lower()
+    return any(x in text for x in QUOTA_MARKERS)
+
+
+def blank(value):
     if value is None:
-        return None
-    value = str(value).strip()
-    return value or None
+        return ""
+    return str(value).strip()
 
 
-def fetch_newsdata(query, api_key, from_date, page, cfg):
-    """Fetch one NewsData.io page and return its cursor for the next page."""
+def fetch_newsdata(query, api_key, from_date, page=None):
     params = {
         "apikey": api_key,
-        "q": query[: cfg["max_query_len"]],
+        "q": query[:100],
         "language": "en",
         "size": 10,
     }
 
-    # The Latest endpoint supports a 1–48 hour timeframe. The previous
-    # implementation sent from_date to /news, which is not the current
-    # Latest-endpoint pattern and could silently reduce/empty the feed.
-    # Keep the UI lookback for filtering locally, while using the supported
-    # timeframe parameter for the live request.
+    # Latest supports a maximum 48-hour timeframe.
     if from_date:
         try:
-            requested_hours = max(
+            hours = max(
                 1,
-                int((datetime.now(timezone.utc) - datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)).total_seconds() // 3600),
+                int(
+                    (
+                        datetime.now(timezone.utc)
+                        - datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                    ).total_seconds()
+                    // 3600
+                ),
             )
+            params["timeframe"] = min(48, hours)
         except Exception:
-            requested_hours = 48
-        params["timeframe"] = min(48, requested_hours)
+            params["timeframe"] = 48
 
-    # NewsData uses an opaque cursor returned as nextPage.
     if page:
         params["page"] = page
 
-    resp = requests.get(cfg["endpoint"], params=params, timeout=DEFAULT_TIMEOUT)
+    response = requests.get(
+        "https://newsdata.io/api/1/latest",
+        params=params,
+        timeout=DEFAULT_TIMEOUT,
+    )
+
     try:
-        payload = resp.json()
-    except ValueError:
+        payload = response.json()
+    except Exception:
         payload = {}
 
     if payload.get("status") != "success":
-        res = payload.get("results")
-        msg = res.get("message") if isinstance(res, dict) else payload.get("message")
-        code = res.get("code", "") if isinstance(res, dict) else ""
-        msg = msg or f"HTTP {resp.status_code}"
-        if _is_quota_error(f"{code} {msg}", resp.status_code):
-            raise QuotaExhausted(msg)
-        raise RuntimeError(msg)
+        result = payload.get("results")
+        message = result.get("message") if isinstance(result, dict) else payload.get("message")
+        code = result.get("code") if isinstance(result, dict) else ""
+        message = message or f"HTTP {response.status_code}"
+        if is_quota_error(f"{code} {message}", response.status_code):
+            raise QuotaExhausted(message)
+        raise RuntimeError(message)
 
     rows = []
-    for a in payload.get("results", []) or []:
-        img = _blank_to_none(a.get("image_url")) or ""
-        creator = a.get("creator")
-        author = ", ".join(creator) if isinstance(creator, list) else (creator or "")
-
-        pub = _blank_to_none(a.get("pubDate")) or ""
-        if pub and "T" not in pub:
-            pub = pub.replace(" ", "T") + "Z"
-
+    for item in payload.get("results", []) or []:
+        creator = item.get("creator")
+        author = ", ".join(creator) if isinstance(creator, list) else blank(creator)
         rows.append({
-            "title": _blank_to_none(a.get("title")),
-            "description": _blank_to_none(a.get("description")) or "",
-            "content": _blank_to_none(a.get("content")) or "",
-            "url": _blank_to_none(a.get("link")) or "",
-            "image_url": img,
-            "source": _blank_to_none(a.get("source_id")) or "Unknown",
-            "published_at": pub,
+            "title": blank(item.get("title")),
+            "description": blank(item.get("description")),
+            "content": blank(item.get("content")),
+            "url": blank(item.get("link")),
+            "image_url": blank(item.get("image_url")),
+            "source": blank(item.get("source_id")) or "NewsData",
+            "published_at": blank(item.get("pubDate")),
             "author": author,
         })
 
     return rows, payload.get("totalResults", 0), payload.get("nextPage")
 
 
-FETCHERS = {"newsdata": fetch_newsdata}
+def fetch_google_rss(query, api_key=None, from_date=None, page=None):
+    url = "https://news.google.com/rss/search"
+    params = {
+        "q": query[:100],
+        "hl": "en-IN",
+        "gl": "IN",
+        "ceid": "IN:en",
+    }
+
+    response = requests.get(url, params=params, timeout=DEFAULT_TIMEOUT)
+    response.raise_for_status()
+
+    root = ET.fromstring(response.content)
+    rows = []
+
+    for item in root.findall("./channel/item"):
+        title = blank(item.findtext("title"))
+        link = blank(item.findtext("link"))
+        description = blank(item.findtext("description"))
+        pub = blank(item.findtext("pubDate"))
+        source_node = item.find("source")
+        source = blank(source_node.text if source_node is not None else "") or "Google News"
+
+        rows.append({
+            "title": title,
+            "description": re.sub(r"<[^>]+>", " ", description).strip(),
+            "content": "",
+            "url": link,
+            "image_url": "",
+            "source": source,
+            "published_at": pub,
+            "author": "",
+        })
+
+    return rows, len(rows), None
 
 
-# =========================================================
-# 4. DEDUPLICATION
-#    Three passes, cheapest first:
-#      a) canonical URL match   (same link, different tracking params)
-#      b) exact normalized title
-#      c) fuzzy token-overlap   (same story, reworded headline)
-# =========================================================
+# ============================================================
+# DEDUP
+# ============================================================
 
-TRACKING_PREFIXES = ("utm_", "fbclid", "gclid", "mc_cid", "mc_eid", "ref", "cmpid", "icid")
-
-_TITLE_NOISE = re.compile(r"[^a-z0-9 ]+")
-_WS = re.compile(r"\s+")
-
-# Dropped when comparing headlines — they carry no distinguishing signal
+TRACKING = ("utm_", "fbclid", "gclid", "mc_cid", "mc_eid", "cmpid", "icid")
 STOPWORDS = {
-    "the", "a", "an", "and", "or", "of", "to", "in", "on", "for", "with", "at",
-    "by", "from", "as", "is", "are", "was", "were", "be", "been", "it", "its",
-    "that", "this", "these", "those", "after", "over", "amid", "says", "say",
-    "new", "news", "report", "reports", "update", "updates", "live",
+    "the", "a", "an", "and", "or", "of", "to", "in", "on", "for", "with",
+    "at", "by", "from", "as", "is", "are", "was", "were", "be", "been",
+    "after", "over", "amid", "says", "say", "new", "news", "report",
 }
 
 
-def canonical_url(url: str) -> str:
-    """Strip scheme, www, tracking params, AMP suffixes and trailing slashes."""
+def canonical_url(url):
     if not url:
         return ""
     try:
         p = urlparse(url.strip())
+        host = p.netloc.lower()
+        if host.startswith("www."):
+            host = host[4:]
+        keep = [
+            (k, v) for k, v in parse_qsl(p.query)
+            if not any(k.lower().startswith(t) for t in TRACKING)
+        ]
+        return urlunparse(("", host, p.path.rstrip("/"), "", urlencode(sorted(keep)), "")).lower()
     except Exception:
         return url.strip().lower()
 
-    netloc = (p.netloc or "").lower()
-    if netloc.startswith("www."):
-        netloc = netloc[4:]
-    if netloc.startswith("amp."):
-        netloc = netloc[4:]
 
-    path = (p.path or "").rstrip("/")
-    for suffix in ("/amp", ".amp", "/amp.html"):
-        if path.endswith(suffix):
-            path = path[: -len(suffix)]
-
-    keep = [
-        (k, v) for k, v in parse_qsl(p.query or "")
-        if not any(k.lower().startswith(t) for t in TRACKING_PREFIXES)
-    ]
-    query = urlencode(sorted(keep))
-
-    return urlunparse(("", netloc, path, "", query, "")).lstrip("/").lower()
+def normalize_title(title):
+    text = re.sub(r"[^a-z0-9 ]+", " ", blank(title).lower())
+    return re.sub(r"\s+", " ", text).strip()
 
 
-def normalize_title(title: str) -> str:
-    """Lowercase, drop publisher suffix (' - Reuters') and punctuation."""
-    if not title:
-        return ""
-    t = title.lower().strip()
-    # Publishers commonly append " - Outlet" or " | Outlet"
-    for sep in (" - ", " | ", " — ", " – "):
-        if sep in t:
-            head, _, tail = t.rpartition(sep)
-            # only strip if the tail looks like an outlet name
-            if head and len(tail.split()) <= 5:
-                t = head
-    t = _TITLE_NOISE.sub(" ", t)
-    return _WS.sub(" ", t).strip()
-
-
-def title_tokens(title: str) -> frozenset:
+def tokens(title):
     return frozenset(
-        w for w in normalize_title(title).split()
-        if w not in STOPWORDS and len(w) > 2
+        x for x in normalize_title(title).split()
+        if x not in STOPWORDS and len(x) > 2
     )
 
 
-def jaccard(a: frozenset, b: frozenset) -> float:
-    if not a or not b:
-        return 0.0
-    inter = len(a & b)
-    if not inter:
-        return 0.0
-    return inter / len(a | b)
-
-
-def overlap_coef(a: frozenset, b: frozenset) -> float:
-    """Containment: tolerant of one headline being much longer than the other."""
-    if not a or not b:
-        return 0.0
-    return len(a & b) / min(len(a), len(b))
-
-
-def similarity(rec_a: dict, rec_b: dict) -> float:
-    """
-    Blended headline similarity in [0,1].
-
-    Jaccard alone is too harsh when outlets reword ("fines" vs "penalised")
-    or when one headline is much longer, so the strongest of three signals
-    is used: set overlap, containment, and character-level sequence ratio.
-    """
-    ta, tb = rec_a["_tokens"], rec_b["_tokens"]
+def similarity(a, b):
+    ta, tb = a["_tokens"], b["_tokens"]
     if not ta or not tb:
         return 0.0
-
-    j = jaccard(ta, tb)
-    o = overlap_coef(ta, tb)
-    r = SequenceMatcher(None, rec_a["_norm"], rec_b["_norm"]).ratio()
-
-    # Containment is slightly discounted — on its own it over-merges
-    # short headlines that happen to share a couple of entity words.
-    return max(j, 0.92 * o, r)
+    inter = len(ta & tb)
+    jaccard = inter / len(ta | tb)
+    containment = inter / min(len(ta), len(tb))
+    ratio = SequenceMatcher(None, a["_norm"], b["_norm"]).ratio()
+    return max(jaccard, 0.92 * containment, ratio)
 
 
-def _richness(rec: dict) -> tuple:
-    """Prefer the copy with an image, a longer description, and more providers."""
-    return (
-        1 if rec.get("image_url") else 0,
-        len(rec.get("description") or ""),
-        len(rec.get("content") or ""),
-        len(rec.get("providers") or ()),
-    )
-
-
-def merge_records(keep: dict, other: dict) -> dict:
-    """Fold `other` into `keep`, taking the better value for each field."""
+def merge(keep, other):
     keep["providers"] = set(keep.get("providers", set())) | set(other.get("providers", set()))
-
-    if not keep.get("image_url") and other.get("image_url"):
-        keep["image_url"] = other["image_url"]
-    if len(other.get("description") or "") > len(keep.get("description") or ""):
+    for key in ("image_url", "author", "content", "description"):
+        if not keep.get(key) and other.get(key):
+            keep[key] = other[key]
+    if len(other.get("description", "")) > len(keep.get("description", "")):
         keep["description"] = other["description"]
-    if len(other.get("content") or "") > len(keep.get("content") or ""):
-        keep["content"] = other["content"]
-    if not keep.get("author") and other.get("author"):
-        keep["author"] = other["author"]
-    if not keep.get("published_at") and other.get("published_at"):
-        keep["published_at"] = other["published_at"]
-
-    return keep
 
 
-def deduplicate(records: list, fuzzy_threshold: float = 0.72) -> tuple:
-    """
-    Collapse duplicates across providers.
-    Returns (unique_records, stats_dict).
-    """
+def deduplicate(records, threshold=0.78):
     stats = {"by_url": 0, "by_title": 0, "by_fuzzy": 0}
+    by_url, by_title, survivors = {}, {}, []
 
-    # Richest copies first so the survivor of each clash is the best one
-    ordered = sorted(records, key=_richness, reverse=True)
-
-    by_url = {}
-    by_title = {}
-    survivors = []
-
-    for rec in ordered:
-        if not rec.get("title"):
-            continue
-        if rec["title"].strip().lower().startswith("[removed]"):
+    for row in records:
+        title = blank(row.get("title"))
+        if not title or title.lower().startswith("[removed]"):
             continue
 
-        cu = canonical_url(rec.get("url", ""))
-        nt = normalize_title(rec["title"])
+        row["providers"] = set(row.get("providers", set()))
+        cu = canonical_url(row.get("url", ""))
+        nt = normalize_title(title)
 
         if cu and cu in by_url:
-            merge_records(by_url[cu], rec)
+            merge(by_url[cu], row)
             stats["by_url"] += 1
             continue
-
         if nt and nt in by_title:
-            merge_records(by_title[nt], rec)
+            merge(by_title[nt], row)
             stats["by_title"] += 1
             continue
 
-        rec["providers"] = set(rec.get("providers", set()))
-        rec["_tokens"] = title_tokens(rec["title"])
-        rec["_norm"] = nt
-
-        survivors.append(rec)
+        row["_norm"] = nt
+        row["_tokens"] = tokens(title)
+        survivors.append(row)
         if cu:
-            by_url[cu] = rec
+            by_url[cu] = row
         if nt:
-            by_title[nt] = rec
+            by_title[nt] = row
 
-    # Fuzzy pass — same story, differently worded headline.
-    # Bucketed by shared token so this stays near-linear instead of O(n^2).
     final = []
-    buckets = {}
-
-    for rec in survivors:
-        toks = rec["_tokens"]
-        candidate_ids = set()
-        for tok in toks:
-            candidate_ids.update(buckets.get(tok, ()))
-
-        matched = None
-        best = 0.0
-        for idx in candidate_ids:
-            score = similarity(rec, final[idx])
-            if score >= fuzzy_threshold and score > best:
-                best, matched = score, idx
-
-        if matched is not None:
-            merge_records(final[matched], rec)
+    for row in survivors:
+        match = None
+        best = 0
+        for existing in final:
+            score = similarity(row, existing)
+            if score >= threshold and score > best:
+                best = score
+                match = existing
+        if match:
+            merge(match, row)
             stats["by_fuzzy"] += 1
-            continue
+        else:
+            final.append(row)
 
-        final.append(rec)
-        new_idx = len(final) - 1
-        for tok in toks:
-            buckets.setdefault(tok, []).append(new_idx)
-
-    for rec in final:
-        rec.pop("_tokens", None)
-        rec.pop("_norm", None)
-        rec["providers"] = sorted(rec.get("providers", set()))
+    for row in final:
+        row.pop("_norm", None)
+        row.pop("_tokens", None)
+        row["providers"] = sorted(row.get("providers", set()))
 
     return final, stats
 
 
-# =========================================================
-# 5. ORCHESTRATION — tiered failover
-# =========================================================
+# ============================================================
+# INGESTION
+# ============================================================
 
-def build_jobs(api_keys: dict, provider_ids, categories=None):
-    """Expand provider/category/query jobs. Pagination is handled per job."""
-    jobs = []
-    for pid in provider_ids:
-        cfg = PROVIDERS[pid]
-        key = (api_keys.get(pid) or "").strip()
-        if not key:
-            continue
-        for category, queries in PROVIDER_QUERIES[pid].items():
+def fetch_all(api_keys, lookback_days=2, categories=None, fuzzy_threshold=0.78, max_workers=4):
+    from_date = (
+        datetime.now(timezone.utc) - timedelta(days=lookback_days)
+    ).strftime("%Y-%m-%d")
+
+    per_provider = {
+        name: {"requests": 0, "articles": 0, "errors": 0, "quota_hits": 0}
+        for name in PROVIDERS
+    }
+    errors = []
+    raw = []
+
+    newsdata_key = blank(api_keys.get("newsdata"))
+
+    # ---- NewsData: four targeted requests, max 10 articles each on free tier.
+    if newsdata_key:
+        jobs = []
+        for category, queries in QUERIES.items():
             if categories and category not in categories:
                 continue
             for query in queries:
-                jobs.append((pid, category, query, key, cfg))
-    return jobs
+                jobs.append((category, query))
 
+        def newsdata_job(category, query):
+            return category, fetch_newsdata(query, newsdata_key, from_date)
 
-def _run_tier(provider_ids, api_keys, from_date, categories, max_workers,
-              per_provider, errors):
-    """
-    Execute provider query jobs in parallel and walk NewsData cursor pages.
+        with __import__("concurrent.futures").futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
+            futures = [pool.submit(newsdata_job, *job) for job in jobs]
+            for future in __import__("concurrent.futures").futures.as_completed(futures):
+                category, result = None, None
+                try:
+                    category, result = future.result()
+                    rows, _, _ = result
+                    per_provider["newsdata"]["requests"] += 1
+                    per_provider["newsdata"]["articles"] += len(rows)
+                    for row in rows:
+                        row["provider_category"] = category
+                        row["providers"] = {"newsdata"}
+                        raw.append(row)
+                except QuotaExhausted as exc:
+                    per_provider["newsdata"]["requests"] += 1
+                    per_provider["newsdata"]["quota_hits"] += 1
+                    errors.append(f"NewsData.io quota: {exc}")
+                except Exception as exc:
+                    per_provider["newsdata"]["requests"] += 1
+                    per_provider["newsdata"]["errors"] += 1
+                    errors.append(f"NewsData.io: {exc}")
 
-    NewsData's free response is 10 articles per request and exposes an opaque
-    nextPage cursor for additional pages. We read up to max_pages per query,
-    stopping early when there is no cursor or the provider quota is reached.
-    """
-    jobs = build_jobs(api_keys, provider_ids, categories)
-    if not jobs:
-        return [], set()
+    # ---- Google News RSS: free fallback/source. It runs even when NewsData
+    # fails, so the dashboard is not blank because of an API-key problem.
+    jobs = []
+    for category, queries in QUERIES.items():
+        if categories and category not in categories:
+            continue
+        for query in queries:
+            jobs.append((category, query))
 
-    raw = []
-    quota_hits = {pid: 0 for pid in provider_ids}
-    failures = {pid: 0 for pid in provider_ids}
-    attempts = {pid: 0 for pid in provider_ids}
+    def rss_job(category, query):
+        return category, fetch_google_rss(query)
 
-    def run_job(pid, category, query, key, cfg):
-        page_token = None
-        all_rows = []
-        pages_read = 0
-
-        while pages_read < cfg.get("max_pages", 1):
-            rows, total, next_page = FETCHERS[pid](
-                query, key, from_date, page_token, cfg
-            )
-            all_rows.extend(rows)
-            pages_read += 1
-            if not next_page:
-                break
-            page_token = next_page
-
-        return all_rows, pages_read
-
-    with ThreadPoolExecutor(max_workers=max_workers) as ex:
-        futures = {
-            ex.submit(run_job, pid, category, query, key, cfg):
-                (pid, category)
-            for pid, category, query, key, cfg in jobs
-        }
-
-        for fut in as_completed(futures):
-            pid, category = futures[fut]
+    with __import__("concurrent.futures").futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
+        futures = [pool.submit(rss_job, *job) for job in jobs]
+        for future in __import__("concurrent.futures").futures.as_completed(futures):
             try:
-                rows, pages_read = fut.result()
-                per_provider[pid]["requests"] += pages_read
-                per_provider[pid]["articles"] += len(rows)
-                attempts[pid] += pages_read
-
-                for r in rows:
-                    r["category_hint"] = category
-                    r["providers"] = {pid}
-                    raw.append(r)
-
-            except QuotaExhausted as exc:
-                attempts[pid] += 1
-                failures[pid] += 1
-                quota_hits[pid] += 1
-                per_provider[pid]["requests"] += 1
-                per_provider[pid]["quota_hits"] += 1
-                if quota_hits[pid] == 1:
-                    errors.append(
-                        f"{PROVIDERS[pid]['label']}: quota reached — {exc}"
-                    )
-
+                category, result = future.result()
+                rows, _, _ = result
+                per_provider["google_rss"]["requests"] += 1
+                per_provider["google_rss"]["articles"] += len(rows)
+                for row in rows:
+                    row["provider_category"] = category
+                    row["providers"] = {"google_rss"}
+                    raw.append(row)
             except Exception as exc:
-                attempts[pid] += 1
-                failures[pid] += 1
-                per_provider[pid]["requests"] += 1
-                per_provider[pid]["errors"] += 1
-                errors.append(
-                    f"{PROVIDERS[pid]['label']} · {category}: {exc}"
-                )
+                per_provider["google_rss"]["requests"] += 1
+                per_provider["google_rss"]["errors"] += 1
+                errors.append(f"Google News RSS: {exc}")
 
-    exhausted = {
-        pid for pid in provider_ids
-        if attempts.get(pid, 0) > 0
-        and failures[pid] == attempts[pid]
-        and quota_hits[pid] > 0
-    }
-    return raw, exhausted
+    unique, dedup = deduplicate(raw, threshold=fuzzy_threshold)
 
-
-def fetch_all(api_keys: dict, lookback_days: int = 7, categories=None,
-              fuzzy_threshold: float = 0.72, max_workers: int = 4):
-    from_date = (datetime.now(timezone.utc) - timedelta(days=lookback_days)).strftime("%Y-%m-%d")
-    per_provider = {
-        pid: {"requests": 0, "articles": 0, "errors": 0, "quota_hits": 0, "used": False}
-        for pid in PROVIDERS
-    }
-    errors = []
-    active = ["newsdata"] if (api_keys.get("newsdata") or "").strip() else []
-    if not active:
-        return [], ["NewsData.io API key is not configured on the server."], {
-            "per_provider": per_provider, "raw": 0, "unique": 0,
-            "dedup": {"by_url": 0, "by_title": 0, "by_fuzzy": 0},
-            "failover": False, "active": [], "exhausted": [],
-        }
-    per_provider["newsdata"]["used"] = True
-    raw, exhausted = _run_tier(
-        active, api_keys, from_date, categories, max_workers, per_provider, errors
-    )
-
-    # Safety fallback: if all targeted searches return zero articles without
-    # an API error, make one broad banking request. This protects the dashboard
-    # from overly narrow query matching while keeping credit usage bounded.
-    if not raw and not errors and "newsdata" in active:
-        try:
-            cfg = PROVIDERS["newsdata"]
-            key = (api_keys.get("newsdata") or "").strip()
-            rows, _, _ = FETCHERS["newsdata"](
-                "banking", key, from_date, None, cfg
-            )
-            per_provider["newsdata"]["requests"] += 1
-            per_provider["newsdata"]["articles"] += len(rows)
-            for r in rows:
-                r["category_hint"] = "Transformation"
-                r["providers"] = {"newsdata"}
-                raw.append(r)
-        except QuotaExhausted as exc:
-            per_provider["newsdata"]["requests"] += 1
-            per_provider["newsdata"]["quota_hits"] += 1
-            errors.append(f"NewsData.io: quota reached — {exc}")
-        except Exception as exc:
-            per_provider["newsdata"]["requests"] += 1
-            per_provider["newsdata"]["errors"] += 1
-            errors.append(f"NewsData.io · fallback: {exc}")
-
-    unique, dedup_stats = deduplicate(raw, fuzzy_threshold=fuzzy_threshold)
     return unique, errors, {
         "per_provider": per_provider,
         "raw": len(raw),
         "unique": len(unique),
-        "dedup": dedup_stats,
-        "failover": False,
-        "active": active,
-        "exhausted": sorted(exhausted),
+        "dedup": dedup,
     }
