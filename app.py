@@ -267,7 +267,7 @@ def render_featured_carousel(rows):
 .count{{position:absolute;z-index:6;right:74px;top:16px;color:#0f172a;background:#fff;border:1px solid #dce3ec;border-radius:999px;padding:7px 10px;font-size:9px;font-weight:900;letter-spacing:.7px}}
 .arrow{{position:absolute;z-index:7;top:12px;width:40px;height:40px;border-radius:50%;border:1px solid #dce3ec;background:#fff;color:#0f172a;font-size:23px;line-height:36px;text-align:center;cursor:pointer;box-shadow:0 3px 10px rgba(15,23,42,.08)}}
 .arrow:hover{{background:#f1f5f9}}.prev{{right:122px}}.next{{right:18px}}
-.dots{{position:absolute;z-index:6;right:20px;bottom:14px;display:flex;gap:5px}}.dot{{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.65);display:block}}.dot.on{{background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.22)}}
+.image-unavailable{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#17233a;color:#94a3b8;font-size:9px;font-weight:900;letter-spacing:1.2px}.dots{{position:absolute;z-index:6;right:20px;bottom:14px;display:flex;gap:5px}}.dot{{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.65);display:block}}.dot.on{{background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.22)}}
 @media(max-width:700px){{.hero{{height:290px}}.fb{{width:100%;padding:20px}}.ft{{font-size:20px}}.fd{{font-size:10px}}}}
 </style>
 <div class="hero">
