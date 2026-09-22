@@ -940,6 +940,12 @@ BANKING_CONTEXT_TERMS = [
     "icbc", "mufg", "mizuho",
 ]
 
+NON_BANKING_PHRASES = [
+    "power bank", "powerbank", "blood bank", "food bank", "data bank",
+    "memory bank", "sperm bank", "gene bank", "seed bank", "river bank",
+    "bank balance", "bank transfer", "bank account", "piggy bank",
+]
+
 CATEGORY_TERMS = {
     "Transformation": [
         "digital transformation", "modernization", "modernisation", "core banking",
@@ -975,8 +981,10 @@ def classify_category(title, description, hint=None):
     """Classify banking/audit news and reject generic consumer/technology stories."""
     text = f"{title} {description}".lower()
 
-    # Do NOT treat the word 'bank' alone as banking context.
-    # This prevents 'power bank', 'powerbank', etc. from entering the feed.
+    # Reject common non-banking uses of the word "bank".
+    if any(_term_present(text, phrase) for phrase in NON_BANKING_PHRASES):
+        return None
+
     banking_hits = sum(
         1 for term in BANKING_CONTEXT_TERMS
         if _term_present(text, term)
@@ -1110,7 +1118,7 @@ def calculate_audit_relevance(title, description):
     text = f"{title} {description}".lower()
     score = 0
     for term in AUDIT_TERMS:
-        if term in text:
+        if _term_present(text, term):
             score += 2 if " " in term else 1
     return min(score, 40)
 
@@ -1415,28 +1423,8 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 
+# 7. SIDEBAR CONTROL CENTER
 # ---------------------------------------------------------
-def classify_category(title, description, hint=None):
-    """Classify banking/audit news and reject generic consumer/technology stories."""
-    text = f"{title} {description}".lower()
-
-    # Hard banking relevance gate.
-    banking_hits = sum(
-        1 for term in BANKING_CONTEXT_TERMS
-        if _term_present(text, term)
-    )
-    if banking_hits == 0:
-        return None
-
-    scores = {
-        category: sum(1 for term in terms if _term_present(text, term))
-        for category, terms in CATEGORY_TERMS.items()
-    }
-    best_category = max(scores, key=scores.get)
-    if scores[best_category] == 0:
-        return None
-    return best_category
-
 
 # 7. SIDEBAR CONTROL CENTER
 # ---------------------------------------------------------
