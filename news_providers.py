@@ -30,7 +30,7 @@ PROVIDERS = {
         "signup": "https://newsdata.io/register",
         "max_query_len": 100,
         "page_size": 10,
-        "max_pages": 6,
+        "max_pages": 1,
         "tier": 1,
     },
 }
