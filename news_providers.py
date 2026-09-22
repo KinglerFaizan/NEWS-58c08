@@ -204,8 +204,10 @@ def extract_page_image(url):
 
 def enrich_missing_images(rows, max_workers=8):
     """Recover article-specific OG/Twitter images for NewsData rows."""
-    # Enrich ONLY rows that are actually missing an article image.
-    candidates = [r for r in rows if blank(r.get("image_url")) and blank(r.get("url")) is not False]
+    # Prefer the image embedded by the publisher on the actual article page.
+    # This prevents NewsData/source-level thumbnails from being reused across
+    # unrelated stories. If extraction fails, retain NewsData's image_url.
+    candidates = [r for r in rows if blank(r.get("url"))]
     if not candidates:
         return rows
 
