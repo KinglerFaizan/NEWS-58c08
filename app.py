@@ -928,7 +928,7 @@ BANKING_CONTEXT_TERMS = [
     "banking", "banker", "bankers", "banking industry", "commercial bank",
     "retail bank", "investment bank", "central bank", "private bank", "public sector bank",
     "financial institution", "financial institutions", "financial services",
-    "lender", "lenders", "nbfc", "non-bank financial company", "credit union",
+    "bank", "lender", "lenders", "nbfc", "non-bank financial company", "credit union",
     "deposit", "deposits", "loan", "loans", "mortgage", "payment bank",
     "rbi", "basel", "capital adequacy", "credit risk", "liquidity", "asset quality",
     "financial crime", "aml", "kyc", "money laundering", "sanctions",
@@ -941,9 +941,10 @@ BANKING_CONTEXT_TERMS = [
 ]
 
 NON_BANKING_PHRASES = [
+    # Common uses of "bank" that are not financial institutions.
     "power bank", "powerbank", "blood bank", "food bank", "data bank",
     "memory bank", "sperm bank", "gene bank", "seed bank", "river bank",
-    "bank balance", "bank transfer", "bank account", "piggy bank",
+    "bank holiday", "bank shot", "bank angle",
 ]
 
 CATEGORY_TERMS = {
@@ -951,17 +952,21 @@ CATEGORY_TERMS = {
         "digital transformation", "modernization", "modernisation", "core banking",
         "automation", "artificial intelligence", "generative ai", "genai",
         "machine learning", "cloud", "digital banking", "technology transformation",
+        "cybersecurity", "cyber security", "open banking", "mobile banking",
+        "payments", "payment systems", "fintech", "data analytics",
         "operating model",
     ],
     "Regulation": [
         "regulation", "regulatory", "rbi", "basel", "prudential", "supervision",
         "supervisory", "enforcement", "aml", "anti-money laundering", "kyc",
         "sanctions", "capital requirements", "regulatory capital", "compliance",
+        "directive", "guidance", "legislation", "rulemaking", "supervisory action",
     ],
     "People": [
         "appointed", "appointment", "ceo", "cfo", "cro", "ciso", "chief audit",
         "internal audit", "audit committee", "board", "director", "chairman",
-        "chairwoman", "leadership", "executive",
+        "chairwoman", "leadership", "executive", "resigns", "resignation",
+        "joins", "steps down", "named as", "appointed as",
     ],
     "Global Banks": [
         "hsbc", "jpmorgan", "jpmorgan chase", "citi", "citigroup", "barclays",
@@ -978,19 +983,11 @@ def _term_present(text, term):
 
 
 def classify_category(title, description, hint=None):
-    """Classify banking/audit news and reject generic consumer/technology stories."""
+    """Classify banking/audit news while preserving coverage from targeted provider queries."""
     text = f"{title} {description}".lower()
 
-    # Reject common non-banking uses of the word "bank".
+    # Reject common non-financial uses of the word "bank" before any fallback.
     if any(_term_present(text, phrase) for phrase in NON_BANKING_PHRASES):
-        return None
-
-    banking_hits = sum(
-        1 for term in BANKING_CONTEXT_TERMS
-        if _term_present(text, term)
-    )
-
-    if banking_hits == 0:
         return None
 
     scores = {
@@ -1001,11 +998,24 @@ def classify_category(title, description, hint=None):
         for category, terms in CATEGORY_TERMS.items()
     }
 
-    best_category = max(scores, key=scores.get)
-    if scores[best_category] == 0:
-        return None
+    banking_hits = sum(
+        1 for term in BANKING_CONTEXT_TERMS
+        if _term_present(text, term)
+    )
 
-    return best_category
+    # Normal path: the article itself contains explicit banking context.
+    if banking_hits > 0:
+        best_category = max(scores, key=scores.get)
+        if scores[best_category] > 0:
+            return best_category
+
+    # Coverage path: news_providers.py only submits banking-focused queries.
+    # If the headline/body omits the word "bank" but contains a strong
+    # category signal, use the provider's category hint as contextual evidence.
+    if hint in CATEGORIES and scores.get(hint, 0) > 0:
+        return hint
+
+    return None
 
 
 def placeholder_data_uri(hex_color="#94A3B8"):
