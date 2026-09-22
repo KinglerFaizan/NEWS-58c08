@@ -201,7 +201,7 @@ def card(row):
     category = escape(str(row.get("category") or "News"))
     image = escape(str(row.get("image_url") or ""), quote=True)
     img_html = (
-        f'<img src="{image}" alt="" />'
+        f'<img src="{image}" alt="" onerror="this.style.display=\'none\';" />'
         if image else '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:28px">◈</div>'
     )
     link = f'<a href="{escape(url, quote=True)}" target="_blank">{title}</a>' if url else title
@@ -378,8 +378,8 @@ st.markdown(
 )
 
 st.markdown('<div class="filter-bar"><span class="filter-label">FILTER</span>', unsafe_allow_html=True)
-filter_cols = st.columns(5)
-filter_names = ["ALL NEWS","Transformation","Regulation","People","Global Banks"]
+filter_cols = st.columns(6)
+filter_names = ["ALL NEWS","Transformation","Regulation","People","Cyber & Technology","Global Banks"]
 filter_keys = ["ALL"] + filter_names[1:]
 for col, label, key in zip(filter_cols, filter_names, filter_keys):
     with col:
