@@ -159,6 +159,65 @@ def fetch_newsdata(query, api_key):
     return rows
 
 
+def extract_page_image(url):
+    """Best-effort article image recovery when NewsData has no image_url."""
+    if not url:
+        return ""
+    try:
+        response = requests.get(
+            url,
+            timeout=7,
+            headers={"User-Agent": "Mozilla/5.0 (Audit-Intelligence/1.0)"},
+            allow_redirects=True,
+        )
+        if response.status_code >= 400:
+            return ""
+        html = response.text[:120000]
+
+        patterns = [
+            r'<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']',
+            r'<meta[^>]+name=["\']twitter:image["\'][^>]+content=["\']([^"\']+)["\']',
+            r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']',
+            r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+name=["\']twitter:image["\']',
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, html, re.I)
+            if match:
+                image = match.group(1).strip().replace("&amp;", "&")
+                if image.startswith("//"):
+                    image = "https:" + image
+                elif image.startswith("/"):
+                    parsed = urlparse(response.url)
+                    image = f"{parsed.scheme}://{parsed.netloc}{image}"
+                if image.startswith(("http://", "https://")):
+                    return image
+    except Exception:
+        pass
+    return ""
+
+
+def enrich_missing_images(rows, max_workers=8):
+    """Recover article-specific OG/Twitter images for NewsData rows."""
+    candidates = [r for r in rows if not blank(r.get("image_url"))]
+    if not candidates:
+        return rows
+
+    with ThreadPoolExecutor(max_workers=max_workers) as pool:
+        future_map = {
+            pool.submit(extract_page_image, row.get("url", "")): row
+            for row in candidates
+        }
+        for future in as_completed(future_map):
+            row = future_map[future]
+            try:
+                image = future.result()
+                if image:
+                    row["image_url"] = image
+            except Exception:
+                pass
+    return rows
+
+
 # ----------------------------- dedup -----------------------------
 
 TRACKING = ("utm_", "fbclid", "gclid", "mc_cid", "mc_eid", "cmpid", "icid")
@@ -336,6 +395,7 @@ def fetch_all(
                 errors.append(f"NewsData.io · {category} · {exc}")
 
     unique, dedup = deduplicate(raw, threshold=fuzzy_threshold)
+    unique = enrich_missing_images(unique)
 
     cutoff = datetime.now(timezone.utc) - timedelta(days=int(lookback_days))
     filtered = []
