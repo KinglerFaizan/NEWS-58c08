@@ -52,7 +52,7 @@ st.markdown(
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 :root{--bg:#f7f9fc;--ink:#0f172a;--muted:#64748b;--line:#e5eaf1;--blue:#1769ff;--navy:#101b30}
 .stApp{background:var(--bg);font-family:Inter,sans-serif;color:var(--ink)}
-[data-testid="stAppViewContainer"] .main .block-container{max-width:1500px;padding:0 26px 24px}
+[data-testid="stAppViewContainer"] .main .block-container,[data-testid="stMainBlockContainer"]{max-width:1500px;padding-top:0!important;padding-right:26px;padding-bottom:24px;padding-left:26px}
 header[data-testid="stHeader"]{height:0;background:transparent}
 section[data-testid="stSidebar"]{background:#fff;border-right:1px solid #e5e9f0}
 section[data-testid="stSidebar"]>div{padding-top:.9rem}
@@ -67,8 +67,8 @@ section[data-testid="stSidebar"] .stButton>button:hover{background:#eef4ff!impor
 .header-search{width:330px;padding:10px 17px;border:1px solid #e4e9f1;border-radius:24px;background:#fff;color:#64748b;font-size:12px}.prepared{display:flex;align-items:center;gap:10px}.prepared-meta{text-align:right}.prepared-label{font-size:9px;color:#94a3b8}.prepared-name{font-size:14px;font-weight:800}.prepared-role{font-size:10px;color:#64748b}.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(145deg,#2563eb,#4f46e5);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
 .section-head{display:flex;justify-content:space-between;align-items:end;margin:0 0 9px}.section-title{font-size:22px;font-weight:900;letter-spacing:-.65px}.section-title .bolt{color:#4f46e5}.section-sub{color:#7a8799;font-size:11px;margin-top:2px}.view-all{color:#1769ff;font-weight:800;font-size:11px}
 .filter-bar{display:flex;align-items:center;gap:7px;flex-wrap:nowrap;margin:0 0 14px}.filter-label{font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:1px;min-width:38px}.filter-bar .stButton>button{height:38px!important;border:1px solid #dfe5ed!important;background:#fff!important;color:#334155!important;border-radius:8px!important;font-size:11px!important;font-weight:700!important;padding:0 12px!important}.filter-bar .stButton>button:hover{border-color:#a9c5ff!important;color:#1769ff!important;background:#f5f8ff!important}
-.feature-shell{margin-bottom:28px}.feature-carousel{position:relative;background:#0d172b;border-radius:14px;overflow:hidden;border:1px solid #1c2940;box-shadow:0 10px 26px rgba(15,23,42,.12)}.feature-slide{display:none;position:relative;height:235px;background:#0d172b}.feature-slide.active{display:block}.feature-img{position:absolute;inset:0;height:100%;overflow:hidden}.feature-img img{width:100%;height:100%;object-fit:cover;display:block;opacity:.86}.feature-img:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,12,25,.96) 0%,rgba(5,12,25,.78) 31%,rgba(5,12,25,.18) 67%,rgba(5,12,25,.22) 100%),linear-gradient(0deg,rgba(5,12,25,.45),transparent 55%)}.feature-body{position:absolute;z-index:2;left:0;bottom:0;width:62%;padding:24px 30px;color:#fff}.feature-kicker{display:flex;align-items:center;gap:8px;font-size:8px;font-weight:900;letter-spacing:1.2px;color:#bfdbfe;text-transform:uppercase;margin-bottom:8px}.feature-kicker:before{content:"";width:22px;height:2px;background:#3b82f6}.feature-title{font-size:23px;font-weight:850;line-height:1.18;letter-spacing:-.45px;color:#fff;max-width:700px}.feature-title a{color:#fff;text-decoration:none}.feature-desc{font-size:11px;color:#cbd5e1;line-height:1.4;margin-top:7px;max-width:650px}.feature-meta{font-size:9px;font-weight:700;color:#94a3b8;margin-top:9px}.feature-counter{position:absolute;z-index:4;right:16px;top:13px;font-size:9px;font-weight:800;letter-spacing:1px;color:#e2e8f0;background:rgba(15,23,42,.62);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:5px 8px}.feature-dots{position:absolute;z-index:4;right:17px;bottom:14px;display:flex;gap:4px}.feature-dot{width:14px;height:3px;border-radius:999px;background:rgba(255,255,255,.35)}.feature-dot.active{width:26px;background:#60a5fa}
-.latest-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}.latest-card{background:#fff;border:1px solid #e3e8ef;border-radius:11px;padding:8px;box-shadow:0 3px 11px rgba(15,23,42,.045);min-height:0;display:block;transition:transform .16s ease,box-shadow .16s ease}.latest-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.08)}.latest-image{width:100%;height:132px;border-radius:8px;overflow:hidden;background:#eef2f7}.latest-image img{width:100%;height:100%;object-fit:cover;display:block}.latest-content{padding:9px 3px 3px}.latest-tags{margin-bottom:6px}.latest-tag{display:inline-block;border-radius:4px;padding:3px 6px;font-size:7px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;background:#eef4ff;color:#2563eb;margin-right:5px}.latest-title{font-size:15px;font-weight:850;line-height:1.28;margin-bottom:5px;letter-spacing:-.15px}.latest-title a{color:#0f172a;text-decoration:none}.latest-title a:hover{color:#2563eb}.latest-desc{font-size:10.5px;line-height:1.4;color:#64748b;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.latest-meta{margin-top:8px;font-size:8px;color:#64748b;font-weight:700}
+.feature-shell{margin-bottom:22px}.feature-carousel{position:relative;background:#0d172b;border-radius:14px;overflow:hidden;border:1px solid #1c2940;box-shadow:0 10px 26px rgba(15,23,42,.12)}.feature-slide{display:none;position:relative;height:235px;background:#0d172b}.feature-slide.active{display:block}.feature-img{position:absolute;inset:0;height:100%;overflow:hidden}.feature-img img{width:100%;height:100%;object-fit:cover;display:block;opacity:.86}.feature-img:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,12,25,.96) 0%,rgba(5,12,25,.78) 31%,rgba(5,12,25,.18) 67%,rgba(5,12,25,.22) 100%),linear-gradient(0deg,rgba(5,12,25,.45),transparent 55%)}.feature-body{position:absolute;z-index:2;left:0;bottom:0;width:62%;padding:24px 30px;color:#fff}.feature-kicker{display:flex;align-items:center;gap:8px;font-size:8px;font-weight:900;letter-spacing:1.2px;color:#bfdbfe;text-transform:uppercase;margin-bottom:8px}.feature-kicker:before{content:"";width:22px;height:2px;background:#3b82f6}.feature-title{font-size:23px;font-weight:850;line-height:1.18;letter-spacing:-.45px;color:#fff;max-width:700px}.feature-title a{color:#fff;text-decoration:none}.feature-desc{font-size:11px;color:#cbd5e1;line-height:1.4;margin-top:7px;max-width:650px}.feature-meta{font-size:9px;font-weight:700;color:#94a3b8;margin-top:9px}.feature-counter{position:absolute;z-index:4;right:16px;top:13px;font-size:9px;font-weight:800;letter-spacing:1px;color:#e2e8f0;background:rgba(15,23,42,.62);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:5px 8px}.feature-dots{position:absolute;z-index:4;right:17px;bottom:14px;display:flex;gap:4px}.feature-dot{width:14px;height:3px;border-radius:999px;background:rgba(255,255,255,.35)}.feature-dot.active{width:26px;background:#60a5fa}
+.latest-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;width:100%}.latest-card{background:#fff;border:1px solid #e3e8ef;border-radius:11px;padding:8px;box-shadow:0 3px 11px rgba(15,23,42,.045);min-height:0;display:block;transition:transform .16s ease,box-shadow .16s ease}.latest-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.08)}.latest-image{width:100%;height:128px;border-radius:8px;overflow:hidden;background:#eef2f7}.latest-image img{width:100%;height:100%;object-fit:cover;display:block}.latest-content{padding:9px 3px 3px}.latest-tags{margin-bottom:6px}.latest-tag{display:inline-block;border-radius:4px;padding:3px 6px;font-size:7px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;background:#eef4ff;color:#2563eb;margin-right:5px}.latest-title{font-size:15px;font-weight:850;line-height:1.28;margin-bottom:5px;letter-spacing:-.15px}.latest-title a{color:#0f172a;text-decoration:none}.latest-title a:hover{color:#2563eb}.latest-desc{font-size:10.5px;line-height:1.4;color:#64748b;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.latest-meta{margin-top:8px;font-size:8px;color:#64748b;font-weight:700}
 @media(max-width:1200px){.latest-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.feature-body{width:72%}}@media(max-width:900px){.header-search{display:none}.latest-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.feature-slide{height:225px}}@media(max-width:600px){.latest-grid{grid-template-columns:1fr}.feature-slide{height:330px}.feature-body{width:100%;padding:22px}.feature-title{font-size:21px}.feature-desc{font-size:11px}}
 </style>
 """,
@@ -195,16 +195,24 @@ def fmt_date(value):
 
 def card(row):
     title = escape(str(row.get("title") or "Untitled"))
-    desc = escape(str(row.get("description") or row.get("content") or "No description available."))[:300]
+    desc = escape(str(row.get("description") or row.get("content") or "No description available."))[:240]
     url = str(row.get("url") or "").strip()
-    source = escape(str(row.get("source") or "Unknown"))
+    source = escape(str(row.get("source") or "NewsData"))
     category = escape(str(row.get("category") or "News"))
     image = escape(str(row.get("image_url") or ""), quote=True)
-    img_html = (
-        f'<img src="{image}" alt="" onerror="this.style.display=\'none\';" />'
-        if image else '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:28px">◈</div>'
-    )
+
+    fallback_images = {
+        "Global Banks": "https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=900&q=80",
+        "Regulation": "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=80",
+        "Cyber & Tech": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=900&q=80",
+        "Transformation": "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=900&q=80",
+        "People": "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=900&q=80",
+    }
+    fallback = fallback_images.get(category, fallback_images["Global Banks"])
+    img_src = image or fallback
+    img_html = f'<img src="{img_src}" alt="" onerror="this.onerror=null;this.src=\'{fallback}\';" />'
     link = f'<a href="{escape(url, quote=True)}" target="_blank">{title}</a>' if url else title
+
     return f"""
 <div class="latest-card">
   <div class="latest-image">{img_html}</div>
@@ -398,10 +406,8 @@ st.markdown('</div>', unsafe_allow_html=True)
 if not visible_news:
     st.markdown('<div class="empty"><h3>No banking stories were returned.</h3><p>Try another category or refresh the feed.</p></div>', unsafe_allow_html=True)
 else:
-    st.markdown('<div class="latest-grid">', unsafe_allow_html=True)
-    for row in visible_news:
-        st.markdown(card(row), unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+    cards_html = '<div class="latest-grid">' + ''.join(card(row) for row in visible_news) + '</div>'
+    st.markdown(cards_html, unsafe_allow_html=True)
 
 # ============================================================
 # FOOTER
