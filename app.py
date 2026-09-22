@@ -79,19 +79,40 @@ section[data-testid="stSidebar"] .stButton>button:hover{background:#eef4ff!impor
 .quick-refresh .stButton>button{background:#1769ff!important;color:#fff!important;padding:12px!important;border-radius:9px!important}
 .section-head{display:flex;justify-content:space-between;align-items:end;margin:4px 0 16px}
 .section-title{font-size:27px;font-weight:900;letter-spacing:-.8px}.section-title .bolt{color:#6538ed}.section-sub{color:#7a8799;font-size:13px;margin-top:3px}.view-all{color:#1769ff;font-weight:800;font-size:13px}
-.feature-shell{margin-bottom:26px}.feature-carousel{position:relative;background:#fff;border:1px solid #e7ebf2;border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(15,23,42,.07)}.feature-slide{display:none;grid-template-columns:36% 64%;height:285px}.feature-slide.active{display:grid}.feature-img{height:285px;background:#dbe4ef;overflow:hidden}.feature-img img{width:100%;height:100%;object-fit:cover}.feature-body{padding:28px 32px;display:flex;flex-direction:column;justify-content:center}.feature-kicker{font-size:10px;font-weight:900;letter-spacing:1px;color:#2563eb;text-transform:uppercase;margin-bottom:10px}.feature-title{font-size:25px;font-weight:900;line-height:1.25;letter-spacing:-.5px;color:#0f172a}.feature-title a{color:#0f172a;text-decoration:none}.feature-title a:hover{color:#2563eb}.feature-desc{font-size:13px;color:#64748b;line-height:1.55;margin-top:10px;max-width:720px}.feature-meta{font-size:11px;font-weight:800;color:#64748b;margin-top:16px}.feature-counter{position:absolute;right:22px;bottom:18px;font-size:11px;font-weight:900;color:#64748b;background:#f8fafc;border:1px solid #e5eaf1;border-radius:999px;padding:6px 10px}.feature-dots{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:6px}.feature-dot{width:7px;height:7px;border-radius:50%;background:#cbd5e1}.feature-dot.active{width:22px;border-radius:999px;background:#2563eb}
-.feature-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 3px 12px rgba(15,23,42,.07);border:1px solid #edf0f4}
-.feature-img{height:150px;background:#dbe4ef;overflow:hidden}.feature-img img{width:100%;height:100%;object-fit:cover}
-.feature-body{padding:12px 14px 15px}.feature-tag{display:inline-block;padding:4px 9px;border-radius:999px;font-size:9px;font-weight:900;background:#eef4ff;color:#4f46e5;margin-bottom:8px}
-.feature-title{font-size:16px;font-weight:850;line-height:1.35;min-height:65px}.feature-desc{font-size:11px;color:#7a8799;line-height:1.45;margin-top:7px;min-height:48px}.feature-meta{font-size:10px;font-weight:800;color:#64748b;margin-top:10px}
-.latest-wrap{background:transparent}.latest-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.latest-card{display:flex;gap:14px;background:#fff;border:1px solid #edf0f4;border-radius:14px;padding:14px 16px;margin-bottom:12px;
-box-shadow:0 3px 12px rgba(15,23,42,.045);min-height:170px}.latest-image{width:42%;min-width:42%;height:165px;border-radius:9px;overflow:hidden;background:#e2e8f0}.latest-image img{width:100%;height:100%;object-fit:cover}
-.latest-content{padding:3px 5px;flex:1}.latest-tags{margin-bottom:8px}.latest-tag{display:inline-block;border-radius:999px;padding:5px 10px;font-size:9px;font-weight:900;margin-right:7px;background:#eef4ff;color:#2563eb}
-.latest-title{font-size:18px;font-weight:850;line-height:1.3;margin-bottom:7px}.latest-title a{color:#0f172a;text-decoration:none}.latest-title a:hover{color:#2563eb}.latest-desc{font-size:12px;line-height:1.55;color:#64748b;max-width:850px}.latest-meta{margin-top:13px;font-size:11px;color:#64748b;font-weight:800}
-.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}.filter-label{font-size:11px;font-weight:800;color:#94a3b8;margin:7px 5px 0 0}
-.stButton>button{border-radius:10px;font-weight:800}
-@media(max-width:1000px){.latest-grid{grid-template-columns:1fr}.header-search{display:none}.feature-slide{grid-template-columns:42% 58%;height:270px}.feature-img{height:270px}.feature-title{font-size:21px}}
-@media(max-width:650px){.feature-slide{grid-template-columns:1fr;height:auto}.feature-img{height:190px}.feature-body{padding:20px}.feature-title{font-size:20px}.latest-card{flex-direction:column}.latest-image{width:100%;min-width:0}.brand-sub{display:none}}
+.feature-shell{margin-bottom:30px}
+.feature-carousel{position:relative;background:#0b1220;border-radius:18px;overflow:hidden;border:1px solid #1e293b;box-shadow:0 18px 42px rgba(15,23,42,.16)}
+.feature-slide{display:none;position:relative;height:390px;background:#0b1220}
+.feature-slide.active{display:block}
+.feature-img{position:absolute;inset:0;height:100%;background:linear-gradient(135deg,#172033,#0b1220);overflow:hidden}
+.feature-img img{width:100%;height:100%;object-fit:cover;display:block;opacity:.82}
+.feature-img:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,10,20,.94) 0%,rgba(5,10,20,.72) 35%,rgba(5,10,20,.18) 72%,rgba(5,10,20,.38) 100%),linear-gradient(0deg,rgba(5,10,20,.62),transparent 45%)}
+.feature-body{position:absolute;z-index:2;left:0;bottom:0;width:68%;padding:42px 46px 44px;color:#fff}
+.feature-kicker{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:800;letter-spacing:1.5px;color:#bfdbfe;text-transform:uppercase;margin-bottom:15px}
+.feature-kicker:before{content:"";width:28px;height:2px;background:#3b82f6}
+.feature-title{font-size:31px;font-weight:850;line-height:1.18;letter-spacing:-.8px;color:#fff;max-width:850px}
+.feature-title a{color:#fff;text-decoration:none}
+.feature-title a:hover{color:#bfdbfe}
+.feature-desc{font-size:13px;color:#cbd5e1;line-height:1.55;margin-top:12px;max-width:760px}
+.feature-meta{font-size:10px;font-weight:700;color:#94a3b8;margin-top:18px;letter-spacing:.2px}
+.feature-counter{position:absolute;z-index:4;right:24px;top:22px;font-size:10px;font-weight:800;letter-spacing:1px;color:#e2e8f0;background:rgba(15,23,42,.62);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:7px 11px;backdrop-filter:blur(8px)}
+.feature-dots{position:absolute;z-index:4;left:46px;bottom:22px;display:flex;gap:6px}
+.feature-dot{width:22px;height:3px;border-radius:999px;background:rgba(255,255,255,.28);transition:all .25s}
+.feature-dot.active{width:38px;background:#60a5fa}
+.latest-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.latest-card{background:#fff;border:1px solid #e5e9f0;border-radius:14px;padding:11px;box-shadow:0 4px 16px rgba(15,23,42,.045);min-height:0;display:block;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.latest-card:hover{transform:translateY(-2px);border-color:#cbd5e1;box-shadow:0 10px 26px rgba(15,23,42,.08)}
+.latest-image{width:100%;height:205px;border-radius:9px;overflow:hidden;background:#eef2f7}
+.latest-image img{width:100%;height:100%;object-fit:cover;display:block}
+.latest-content{padding:13px 7px 8px}
+.latest-tags{margin-bottom:8px}
+.latest-tag{display:inline-block;border-radius:5px;padding:4px 7px;font-size:8px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;background:#f1f5f9;color:#475569;margin-right:7px}
+.latest-title{font-size:18px;font-weight:850;line-height:1.3;margin-bottom:7px;letter-spacing:-.25px}
+.latest-title a{color:#0f172a;text-decoration:none}
+.latest-title a:hover{color:#2563eb}
+.latest-desc{font-size:12px;line-height:1.52;color:#64748b}
+.latest-meta{margin-top:12px;font-size:10px;color:#64748b;font-weight:700}
+@media(max-width:1000px){.header-search{display:none}.feature-slide{height:350px}.feature-body{width:78%;padding:34px}.feature-title{font-size:26px}.latest-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.feature-slide{height:430px}.feature-body{width:100%;padding:24px}.feature-title{font-size:22px}.feature-desc{font-size:12px}.feature-dots{left:24px}.latest-grid{grid-template-columns:1fr}.latest-image{height:190px}.brand-sub{display:none}}
 </style>
 """,
     unsafe_allow_html=True,
@@ -241,7 +262,8 @@ def card(row):
 
 
 def render_featured_carousel(rows):
-    rows = rows[:4]
+    """Render a five-story executive newsroom carousel; one story at a time."""
+    rows = rows[:5]
     if not rows:
         return
 
@@ -249,19 +271,25 @@ def render_featured_carousel(rows):
     dots = []
     for idx, row in enumerate(rows):
         title = escape(str(row.get("title") or "Untitled"))
-        desc = escape(str(row.get("description") or row.get("content") or ""))[:360]
+        desc = escape(str(row.get("description") or row.get("content") or ""))[:430]
         category = escape(str(row.get("category") or "News"))
         source = escape(str(row.get("source") or "Unknown"))
         image = escape(str(row.get("image_url") or ""), quote=True)
         url = str(row.get("url") or "").strip()
-        img_html = f'<img src="{image}" alt="" />' if image else '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:38px">◈</div>'
+
+        fallback = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 700'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop stop-color='%231e293b'/%3E%3Cstop offset='1' stop-color='%230f172a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='700' fill='url(%23g)'/%3E%3Ctext x='70' y='620' fill='%2394a3b8' font-family='Arial' font-size='30'%3EAUDIT INTELLIGENCE%3C/text%3E%3C/svg%3E"
+        if image:
+            img_html = f'<img src="{image}" alt="" onerror="this.onerror=null;this.src=\'{fallback}\';" />'
+        else:
+            img_html = f'<img src="{fallback}" alt="" />'
+
         title_html = f'<a href="{escape(url, quote=True)}" target="_blank">{title}</a>' if url else title
         active = " active" if idx == 0 else ""
         slides.append(
             f'<article class="feature-slide{active}">'
             f'<div class="feature-img">{img_html}</div>'
             f'<div class="feature-body">'
-            f'<div class="feature-kicker">{category} · Featured story</div>'
+            f'<div class="feature-kicker">{category} &nbsp;·&nbsp; Featured Intelligence</div>'
             f'<div class="feature-title">{title_html}</div>'
             f'<div class="feature-desc">{desc}</div>'
             f'<div class="feature-meta">{source} &nbsp;•&nbsp; {fmt_date(row.get("published_at"))}</div>'
@@ -273,7 +301,7 @@ def render_featured_carousel(rows):
 <div class="feature-shell">
   <div class="feature-carousel">
     {''.join(slides)}
-    <div class="feature-counter"><span id="feature-index">1</span> / {len(rows)}</div>
+    <div class="feature-counter"><span id="feature-index">01</span> — {len(rows):02d}</div>
     <div class="feature-dots">{''.join(dots)}</div>
   </div>
 </div>
@@ -287,7 +315,7 @@ def render_featured_carousel(rows):
   function show(i) {{
     slides.forEach((s, n) => s.classList.toggle('active', n === i));
     dots.forEach((d, n) => d.classList.toggle('active', n === i));
-    if (counter) counter.textContent = String(i + 1);
+    if (counter) counter.textContent = String(i + 1).padStart(2, '0');
   }}
   if (slides.length > 1) {{
     setInterval(() => {{
@@ -298,7 +326,7 @@ def render_featured_carousel(rows):
 }})();
 </script>
 """
-    components.html(html, height=305, scrolling=False)
+    components.html(html, height=410, scrolling=False)
 
 
 # ============================================================
@@ -391,7 +419,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 active_category = st.session_state.get("active_category", "ALL")
 visible_news = news if active_category == "ALL" else [r for r in news if r.get("category") == active_category]
 
-featured = visible_news[:4]
+featured = visible_news[:5]
 if featured:
     render_featured_carousel(featured)
 
