@@ -1,60 +1,51 @@
 from __future__ import annotations
 
 import re
+import xml.etree.ElementTree as ET
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from difflib import SequenceMatcher
-from urllib.parse import quote, urlparse, urlunparse, parse_qsl, urlencode
-import xml.etree.ElementTree as ET
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 import requests
 
+DEFAULT_TIMEOUT = 12
 
 PROVIDERS = {
-    "newsdata": {
-        "label": "NewsData.io",
-        "endpoint": "https://newsdata.io/api/1/latest",
-        "max_query_len": 100,
-        "page_size": 10,
-        "max_pages": 1,
-    },
-    "google_rss": {
-        "label": "Google News RSS",
-        "endpoint": "https://news.google.com/rss/search",
-        "max_query_len": 100,
-        "page_size": 100,
-        "max_pages": 1,
-    },
+    "google_rss": {"label": "Google News RSS", "endpoint": "https://news.google.com/rss/search"},
+    "newsdata": {"label": "NewsData.io", "endpoint": "https://newsdata.io/api/1/latest"},
 }
-
-DEFAULT_TIMEOUT = 15
 
 QUERIES = {
     "Transformation": [
         "banking digital transformation",
         "bank artificial intelligence",
+        "bank digital banking",
     ],
     "Regulation": [
         "banking regulation",
         "banking compliance",
+        "bank regulator",
     ],
     "People": [
         "bank CEO appointment",
         "bank leadership",
+        "bank executive appointment",
     ],
     "Cyber & Tech": [
         "bank cybersecurity",
         "bank cyber attack",
+        "bank technology fraud",
     ],
     "Global Banks": [
-        "HSBC OR JPMorgan OR Barclays OR Deutsche Bank",
-        "Bank of America OR Wells Fargo OR Citi OR UBS",
+        "HSBC JPMorgan Barclays Deutsche Bank",
+        "Bank of America Wells Fargo Citi UBS",
     ],
 }
 
 QUOTA_MARKERS = (
-    "ratelimited", "rate limit", "too many requests", "quota",
-    "exhausted", "limit reached", "limit exceeded", "daily limit",
-    "apikeyexhausted", "429",
+    "quota", "rate limit", "ratelimited", "too many requests",
+    "exhausted", "limit reached", "limit exceeded", "apikeyexhausted", "429",
 )
 
 
@@ -62,50 +53,75 @@ class QuotaExhausted(RuntimeError):
     pass
 
 
+def blank(value):
+    return str(value).strip() if value is not None else ""
+
+
 def is_quota_error(message, status=None):
     if status in (402, 429):
         return True
     text = str(message or "").lower()
-    return any(x in text for x in QUOTA_MARKERS)
+    return any(marker in text for marker in QUOTA_MARKERS)
 
 
-def blank(value):
-    if value is None:
-        return ""
-    return str(value).strip()
-
-
-def fetch_newsdata(query, api_key, from_date, page=None):
-    params = {
-        "apikey": api_key,
-        "q": query[:100],
-        "language": "en",
-        "size": 10,
-    }
-
-    # Latest supports a maximum 48-hour timeframe.
-    if from_date:
-        try:
-            hours = max(
-                1,
-                int(
-                    (
-                        datetime.now(timezone.utc)
-                        - datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-                    ).total_seconds()
-                    // 3600
-                ),
-            )
-            params["timeframe"] = min(48, hours)
-        except Exception:
-            params["timeframe"] = 48
-
-    if page:
-        params["page"] = page
-
+def fetch_google_rss(query, lookback_days=2):
+    """Fetch recent banking stories without requiring an API key."""
+    # Google News supports the when:N d search modifier.
+    q = f"{query} when:{max(1, min(7, int(lookback_days)))}d"
     response = requests.get(
-        "https://newsdata.io/api/1/latest",
-        params=params,
+        PROVIDERS["google_rss"]["endpoint"],
+        params={"q": q, "hl": "en-IN", "gl": "IN", "ceid": "IN:en"},
+        timeout=DEFAULT_TIMEOUT,
+        headers={"User-Agent": "Mozilla/5.0 Audit-Intelligence-News/1.0"},
+    )
+    response.raise_for_status()
+
+    root = ET.fromstring(response.content)
+    rows = []
+
+    for item in root.findall("./channel/item"):
+        title = blank(item.findtext("title"))
+        link = blank(item.findtext("link"))
+        description = re.sub(
+            r"<[^>]+>", " ", blank(item.findtext("description"))
+        )
+        pub = blank(item.findtext("pubDate"))
+
+        source_node = item.find("source")
+        source = (
+            blank(source_node.text)
+            if source_node is not None
+            else ""
+        ) or "Google News"
+
+        if not title or not link:
+            continue
+
+        rows.append({
+            "title": title,
+            "description": re.sub(r"\\s+", " ", description).strip(),
+            "content": "",
+            "url": link,
+            "image_url": "",
+            "source": source,
+            "published_at": pub,
+            "author": "",
+        })
+
+    return rows
+
+
+def fetch_newsdata(query, api_key):
+    """Optional NewsData source. Deliberately avoids timeframe because the
+    supplied plan rejects that parameter. Local filtering handles lookback."""
+    response = requests.get(
+        PROVIDERS["newsdata"]["endpoint"],
+        params={
+            "apikey": api_key,
+            "q": query[:100],
+            "language": "en",
+            "size": 10,
+        },
         timeout=DEFAULT_TIMEOUT,
     )
 
@@ -116,9 +132,12 @@ def fetch_newsdata(query, api_key, from_date, page=None):
 
     if payload.get("status") != "success":
         result = payload.get("results")
-        message = result.get("message") if isinstance(result, dict) else payload.get("message")
-        code = result.get("code") if isinstance(result, dict) else ""
-        message = message or f"HTTP {response.status_code}"
+        message = (
+            result.get("message")
+            if isinstance(result, dict)
+            else payload.get("message")
+        ) or f"HTTP {response.status_code}"
+        code = result.get("code", "") if isinstance(result, dict) else ""
         if is_quota_error(f"{code} {message}", response.status_code):
             raise QuotaExhausted(message)
         raise RuntimeError(message)
@@ -137,50 +156,10 @@ def fetch_newsdata(query, api_key, from_date, page=None):
             "published_at": blank(item.get("pubDate")),
             "author": author,
         })
-
-    return rows, payload.get("totalResults", 0), payload.get("nextPage")
-
-
-def fetch_google_rss(query, api_key=None, from_date=None, page=None):
-    url = "https://news.google.com/rss/search"
-    params = {
-        "q": query[:100],
-        "hl": "en-IN",
-        "gl": "IN",
-        "ceid": "IN:en",
-    }
-
-    response = requests.get(url, params=params, timeout=DEFAULT_TIMEOUT)
-    response.raise_for_status()
-
-    root = ET.fromstring(response.content)
-    rows = []
-
-    for item in root.findall("./channel/item"):
-        title = blank(item.findtext("title"))
-        link = blank(item.findtext("link"))
-        description = blank(item.findtext("description"))
-        pub = blank(item.findtext("pubDate"))
-        source_node = item.find("source")
-        source = blank(source_node.text if source_node is not None else "") or "Google News"
-
-        rows.append({
-            "title": title,
-            "description": re.sub(r"<[^>]+>", " ", description).strip(),
-            "content": "",
-            "url": link,
-            "image_url": "",
-            "source": source,
-            "published_at": pub,
-            "author": "",
-        })
-
-    return rows, len(rows), None
+    return rows
 
 
-# ============================================================
-# DEDUP
-# ============================================================
+# ----------------------------- dedup -----------------------------
 
 TRACKING = ("utm_", "fbclid", "gclid", "mc_cid", "mc_eid", "cmpid", "icid")
 STOPWORDS = {
@@ -199,10 +178,12 @@ def canonical_url(url):
         if host.startswith("www."):
             host = host[4:]
         keep = [
-            (k, v) for k, v in parse_qsl(p.query)
-            if not any(k.lower().startswith(t) for t in TRACKING)
+            (k, v) for k, v in parse_qsl(p.query or "")
+            if not any(k.lower().startswith(x) for x in TRACKING)
         ]
-        return urlunparse(("", host, p.path.rstrip("/"), "", urlencode(sorted(keep)), "")).lower()
+        return urlunparse(
+            ("", host, p.path.rstrip("/"), "", urlencode(sorted(keep)), "")
+        ).lower()
     except Exception:
         return url.strip().lower()
 
@@ -224,22 +205,27 @@ def similarity(a, b):
     if not ta or not tb:
         return 0.0
     inter = len(ta & tb)
-    jaccard = inter / len(ta | tb)
-    containment = inter / min(len(ta), len(tb))
-    ratio = SequenceMatcher(None, a["_norm"], b["_norm"]).ratio()
-    return max(jaccard, 0.92 * containment, ratio)
+    return max(
+        inter / len(ta | tb),
+        0.92 * inter / min(len(ta), len(tb)),
+        SequenceMatcher(None, a["_norm"], b["_norm"]).ratio(),
+    )
 
 
 def merge(keep, other):
-    keep["providers"] = set(keep.get("providers", set())) | set(other.get("providers", set()))
-    for key in ("image_url", "author", "content", "description"):
+    keep["providers"] = set(keep.get("providers", set())) | set(
+        other.get("providers", set())
+    )
+    for key in ("image_url", "author", "content"):
         if not keep.get(key) and other.get(key):
             keep[key] = other[key]
     if len(other.get("description", "")) > len(keep.get("description", "")):
         keep["description"] = other["description"]
+    if not keep.get("published_at") and other.get("published_at"):
+        keep["published_at"] = other["published_at"]
 
 
-def deduplicate(records, threshold=0.78):
+def deduplicate(records, threshold=0.80):
     stats = {"by_url": 0, "by_title": 0, "by_fuzzy": 0}
     by_url, by_title, survivors = {}, {}, []
 
@@ -272,12 +258,11 @@ def deduplicate(records, threshold=0.78):
     final = []
     for row in survivors:
         match = None
-        best = 0
+        best = 0.0
         for existing in final:
             score = similarity(row, existing)
             if score >= threshold and score > best:
-                best = score
-                match = existing
+                best, match = score, existing
         if match:
             merge(match, row)
             stats["by_fuzzy"] += 1
@@ -292,76 +277,41 @@ def deduplicate(records, threshold=0.78):
     return final, stats
 
 
-# ============================================================
-# INGESTION
-# ============================================================
+def _fetch_rss_job(category, query, lookback_days):
+    return category, fetch_google_rss(query, lookback_days)
 
-def fetch_all(api_keys, lookback_days=2, categories=None, fuzzy_threshold=0.78, max_workers=4):
-    from_date = (
-        datetime.now(timezone.utc) - timedelta(days=lookback_days)
-    ).strftime("%Y-%m-%d")
 
+def fetch_all(
+    api_keys,
+    lookback_days=2,
+    categories=None,
+    fuzzy_threshold=0.80,
+    max_workers=6,
+):
+    """RSS-first ingestion. NewsData is optional and never blocks RSS."""
     per_provider = {
-        name: {"requests": 0, "articles": 0, "errors": 0, "quota_hits": 0}
-        for name in PROVIDERS
+        "google_rss": {"requests": 0, "articles": 0, "errors": 0, "quota_hits": 0},
+        "newsdata": {"requests": 0, "articles": 0, "errors": 0, "quota_hits": 0},
     }
     errors = []
     raw = []
 
-    newsdata_key = blank(api_keys.get("newsdata"))
+    jobs = [
+        (category, query)
+        for category, queries in QUERIES.items()
+        if not categories or category in categories
+        for query in queries
+    ]
 
-    # ---- NewsData: four targeted requests, max 10 articles each on free tier.
-    if newsdata_key:
-        jobs = []
-        for category, queries in QUERIES.items():
-            if categories and category not in categories:
-                continue
-            for query in queries:
-                jobs.append((category, query))
-
-        def newsdata_job(category, query):
-            return category, fetch_newsdata(query, newsdata_key, from_date)
-
-        with __import__("concurrent.futures").futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
-            futures = [pool.submit(newsdata_job, *job) for job in jobs]
-            for future in __import__("concurrent.futures").futures.as_completed(futures):
-                category, result = None, None
-                try:
-                    category, result = future.result()
-                    rows, _, _ = result
-                    per_provider["newsdata"]["requests"] += 1
-                    per_provider["newsdata"]["articles"] += len(rows)
-                    for row in rows:
-                        row["provider_category"] = category
-                        row["providers"] = {"newsdata"}
-                        raw.append(row)
-                except QuotaExhausted as exc:
-                    per_provider["newsdata"]["requests"] += 1
-                    per_provider["newsdata"]["quota_hits"] += 1
-                    errors.append(f"NewsData.io quota: {exc}")
-                except Exception as exc:
-                    per_provider["newsdata"]["requests"] += 1
-                    per_provider["newsdata"]["errors"] += 1
-                    errors.append(f"NewsData.io: {exc}")
-
-    # ---- Google News RSS: free fallback/source. It runs even when NewsData
-    # fails, so the dashboard is not blank because of an API-key problem.
-    jobs = []
-    for category, queries in QUERIES.items():
-        if categories and category not in categories:
-            continue
-        for query in queries:
-            jobs.append((category, query))
-
-    def rss_job(category, query):
-        return category, fetch_google_rss(query)
-
-    with __import__("concurrent.futures").futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
-        futures = [pool.submit(rss_job, *job) for job in jobs]
-        for future in __import__("concurrent.futures").futures.as_completed(futures):
+    # Google News RSS is the guaranteed no-key ingestion path.
+    with ThreadPoolExecutor(max_workers=max_workers) as pool:
+        futures = [
+            pool.submit(_fetch_rss_job, category, query, lookback_days)
+            for category, query in jobs
+        ]
+        for future in as_completed(futures):
             try:
-                category, result = future.result()
-                rows, _, _ = result
+                category, rows = future.result()
                 per_provider["google_rss"]["requests"] += 1
                 per_provider["google_rss"]["articles"] += len(rows)
                 for row in rows:
@@ -371,13 +321,57 @@ def fetch_all(api_keys, lookback_days=2, categories=None, fuzzy_threshold=0.78, 
             except Exception as exc:
                 per_provider["google_rss"]["requests"] += 1
                 per_provider["google_rss"]["errors"] += 1
-                errors.append(f"Google News RSS: {exc}")
+                errors.append(f"Google News RSS · {exc}")
+
+    # NewsData is attempted only as a secondary enrichment source.
+    # It is limited to ONE request so an exhausted key cannot generate
+    # ten quota errors and cannot prevent RSS results from appearing.
+    key = blank(api_keys.get("newsdata"))
+    if key:
+        try:
+            rows = fetch_newsdata("banking", key)
+            per_provider["newsdata"]["requests"] += 1
+            per_provider["newsdata"]["articles"] += len(rows)
+            for row in rows:
+                row["provider_category"] = "Transformation"
+                row["providers"] = {"newsdata"}
+                raw.append(row)
+        except QuotaExhausted as exc:
+            per_provider["newsdata"]["requests"] += 1
+            per_provider["newsdata"]["quota_hits"] += 1
+            errors.append(f"NewsData.io skipped: {exc}")
+        except Exception as exc:
+            per_provider["newsdata"]["requests"] += 1
+            per_provider["newsdata"]["errors"] += 1
+            errors.append(f"NewsData.io skipped: {exc}")
 
     unique, dedup = deduplicate(raw, threshold=fuzzy_threshold)
 
-    return unique, errors, {
+    # Local lookback filter. This is applied after RSS/NewsData retrieval so
+    # the UI's date setting actually controls what is displayed.
+    cutoff = datetime.now(timezone.utc) - timedelta(days=int(lookback_days))
+    filtered = []
+    for row in unique:
+        value = row.get("published_at")
+        if not value:
+            filtered.append(row)
+            continue
+        try:
+            dt = datetime.fromisoformat(
+                value.replace("Z", "+00:00")
+            )
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            if dt >= cutoff:
+                filtered.append(row)
+        except Exception:
+            filtered.append(row)
+
+    return filtered, errors, {
         "per_provider": per_provider,
         "raw": len(raw),
         "unique": len(unique),
+        "retained": len(filtered),
         "dedup": dedup,
+        "active": ["google_rss"] + (["newsdata"] if key else []),
     }
