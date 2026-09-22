@@ -219,7 +219,7 @@ def card(row):
 
 
 def render_featured_carousel(rows):
-    """Render a five-story executive newsroom carousel; one story at a time."""
+    """Self-contained five-story hero carousel. CSS lives inside the iframe."""
     rows = rows[:5]
     if not rows:
         return
@@ -228,62 +228,69 @@ def render_featured_carousel(rows):
     dots = []
     for idx, row in enumerate(rows):
         title = escape(str(row.get("title") or "Untitled"))
-        desc = escape(str(row.get("description") or row.get("content") or ""))[:430]
+        desc = escape(str(row.get("description") or row.get("content") or ""))[:420]
         category = escape(str(row.get("category") or "News"))
         source = escape(str(row.get("source") or "Unknown"))
         image = escape(str(row.get("image_url") or ""), quote=True)
         url = str(row.get("url") or "").strip()
 
-        fallback = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 700'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop stop-color='%231e293b'/%3E%3Cstop offset='1' stop-color='%230f172a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='700' fill='url(%23g)'/%3E%3Ctext x='70' y='620' fill='%2394a3b8' font-family='Arial' font-size='30'%3EAUDIT INTELLIGENCE%3C/text%3E%3C/svg%3E"
-        if image:
-            img_html = f'<img src="{image}" alt="" onerror="this.onerror=null;this.src=\'{fallback}\';" />'
-        else:
-            img_html = f'<img src="{fallback}" alt="" />'
-
+        fallback = "https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=1600&q=80"
+        img_html = (
+            f'<img src="{image}" alt="" onerror="this.onerror=null;this.src=\'{fallback}\';">'
+            if image else f'<img src="{fallback}" alt="">'
+        )
         title_html = f'<a href="{escape(url, quote=True)}" target="_blank">{title}</a>' if url else title
-        active = " active" if idx == 0 else ""
+        delay = idx * 5
         slides.append(
-            f'<article class="feature-slide{active}">'
-            f'<div class="feature-img">{img_html}</div>'
-            f'<div class="feature-body">'
-            f'<div class="feature-kicker">{category} &nbsp;·&nbsp; Featured Intelligence</div>'
-            f'<div class="feature-title">{title_html}</div>'
-            f'<div class="feature-desc">{desc}</div>'
-            f'<div class="feature-meta">{source} &nbsp;•&nbsp; {fmt_date(row.get("published_at"))}</div>'
+            f'<article class="fs fs-{idx}" style="--delay:{delay}s">'
+            f'<div class="fi">{img_html}<div class="shade"></div></div>'
+            f'<div class="fb">'
+            f'<div class="fk"><span></span>{category} &nbsp;·&nbsp; FEATURED INTELLIGENCE</div>'
+            f'<div class="ft">{title_html}</div>'
+            f'<div class="fd">{desc}</div>'
+            f'<div class="fm">{source} &nbsp;•&nbsp; {fmt_date(row.get("published_at"))}</div>'
             f'</div></article>'
         )
-        dots.append(f'<span class="feature-dot{" active" if idx == 0 else ""}"></span>')
+        dots.append(f'<i class="dot {"on" if idx == 0 else ""}"></i>')
 
     html = f"""
-<div class="feature-shell">
-  <div class="feature-carousel">
-    {''.join(slides)}
-    <div class="feature-counter"><span id="feature-index">01</span> — {len(rows):02d}</div>
-    <div class="feature-dots">{''.join(dots)}</div>
-  </div>
+<style>
+*{{box-sizing:border-box}}
+body{{margin:0;background:transparent;font-family:Inter,Arial,sans-serif}}
+.hero{{position:relative;width:100%;height:245px;border-radius:14px;overflow:hidden;background:#0d172b;border:1px solid #1c2940;box-shadow:0 10px 25px rgba(15,23,42,.14)}}
+.fs{{position:absolute;inset:0;display:block;opacity:0;visibility:hidden;animation:heroFade 25s infinite;animation-delay:var(--delay);background:#0d172b}}
+.fi,.fi img,.shade{{position:absolute;inset:0;width:100%;height:100%}}
+.fi img{{object-fit:cover;display:block}}
+.shade{{background:linear-gradient(90deg,rgba(5,12,25,.96) 0%,rgba(5,12,25,.78) 30%,rgba(5,12,25,.22) 72%,rgba(5,12,25,.28) 100%),linear-gradient(0deg,rgba(5,12,25,.5),transparent 58%)}}
+.fb{{position:absolute;z-index:3;left:0;bottom:0;width:66%;padding:24px 30px 25px;color:#fff}}
+.fk{{font-size:8px;font-weight:900;letter-spacing:1.25px;color:#bfdbfe;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}}
+.fk span{{width:22px;height:2px;background:#3b82f6;display:inline-block}}
+.ft{{font-size:23px;font-weight:850;line-height:1.18;letter-spacing:-.4px;color:#fff}}
+.ft a{{color:#fff;text-decoration:none}}
+.fd{{font-size:11px;line-height:1.4;color:#cbd5e1;margin-top:7px;max-width:650px}}
+.fm{{font-size:9px;color:#94a3b8;font-weight:700;margin-top:9px}}
+.count{{position:absolute;z-index:5;right:16px;top:13px;color:#e2e8f0;background:rgba(15,23,42,.66);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:5px 9px;font-size:9px;font-weight:800;letter-spacing:1px}}
+.dots{{position:absolute;z-index:6;right:17px;bottom:14px;display:flex;gap:5px}}
+.dot{{width:14px;height:3px;border-radius:3px;background:rgba(255,255,255,.3);display:block}}
+.dot.on{{width:28px;background:#60a5fa}}
+@keyframes heroFade{{
+  0%{{opacity:0;visibility:hidden}}
+  2%{{opacity:1;visibility:visible}}
+  18%{{opacity:1;visibility:visible}}
+  20%{{opacity:0;visibility:hidden}}
+  100%{{opacity:0;visibility:hidden}}
+}}
+@media(max-width:700px){{
+ .hero{{height:310px}}.fb{{width:100%;padding:20px}}.ft{{font-size:20px}}.fd{{font-size:10px}}
+}}
+</style>
+<div class="hero">
+  {''.join(slides)}
+  <div class="count">01 — {len(rows):02d}</div>
+  <div class="dots">{''.join(dots)}</div>
 </div>
-<script>
-(function() {{
-  const root = document.currentScript.parentElement;
-  const slides = root.querySelectorAll('.feature-slide');
-  const dots = root.querySelectorAll('.feature-dot');
-  const counter = root.querySelector('#feature-index');
-  let current = 0;
-  function show(i) {{
-    slides.forEach((s, n) => s.classList.toggle('active', n === i));
-    dots.forEach((d, n) => d.classList.toggle('active', n === i));
-    if (counter) counter.textContent = String(i + 1).padStart(2, '0');
-  }}
-  if (slides.length > 1) {{
-    setInterval(() => {{
-      current = (current + 1) % slides.length;
-      show(current);
-    }}, 5000);
-  }}
-}})();
-</script>
 """
-    components.html(html, height=410, scrolling=False)
+    components.html(html, height=255, scrolling=False)
 
 
 # ============================================================
