@@ -27,7 +27,7 @@ import news_providers as npv
 
 # NewsData.io credential.
 # Intentionally embedded here at the user's request.
-NEWSDATA_API_KEY_HARDCODED = "pub_2a0098094c1a4adbba22d0a71770195e"
+NEWSDATA_API_KEY_HARDCODED = "pub_cb85f4550d47494e98426daa602dd2bf"
 
 # Server-side NewsData.io credential only. Never render this value in the UI.
 def get_newdata_api_key():
