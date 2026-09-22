@@ -517,6 +517,32 @@ def fetch_all(api_keys: dict, lookback_days: int = 7, categories=None,
     raw, exhausted = _run_tier(
         active, api_keys, from_date, categories, max_workers, per_provider, errors
     )
+
+    # Safety fallback: if all targeted searches return zero articles without
+    # an API error, make one broad banking request. This protects the dashboard
+    # from overly narrow query matching while keeping credit usage bounded.
+    if not raw and not errors and "newsdata" in active:
+        try:
+            cfg = PROVIDERS["newsdata"]
+            key = (api_keys.get("newsdata") or "").strip()
+            rows, _, _ = FETCHERS["newsdata"](
+                "banking", key, from_date, None, cfg
+            )
+            per_provider["newsdata"]["requests"] += 1
+            per_provider["newsdata"]["articles"] += len(rows)
+            for r in rows:
+                r["category_hint"] = "Transformation"
+                r["providers"] = {"newsdata"}
+                raw.append(r)
+        except QuotaExhausted as exc:
+            per_provider["newsdata"]["requests"] += 1
+            per_provider["newsdata"]["quota_hits"] += 1
+            errors.append(f"NewsData.io: quota reached — {exc}")
+        except Exception as exc:
+            per_provider["newsdata"]["requests"] += 1
+            per_provider["newsdata"]["errors"] += 1
+            errors.append(f"NewsData.io · fallback: {exc}")
+
     unique, dedup_stats = deduplicate(raw, fuzzy_threshold=fuzzy_threshold)
     return unique, errors, {
         "per_provider": per_provider,
