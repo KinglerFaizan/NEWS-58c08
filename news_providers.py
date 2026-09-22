@@ -54,7 +54,12 @@ class QuotaExhausted(RuntimeError):
 
 
 def blank(value):
-    return str(value).strip() if value is not None else ""
+    if value is None:
+        return ""
+    text = str(value).strip()
+    if text.lower() in {"none", "null", "nan", "n/a", "na"}:
+        return ""
+    return text
 
 
 def is_quota_error(message, status=None):
@@ -199,7 +204,8 @@ def extract_page_image(url):
 
 def enrich_missing_images(rows, max_workers=8):
     """Recover article-specific OG/Twitter images for NewsData rows."""
-    candidates = [r for r in rows if not blank(r.get("image_url"))]
+    # Enrich ONLY rows that are actually missing an article image.
+    candidates = [r for r in rows if blank(r.get("image_url")) and blank(r.get("url")) is not False]
     if not candidates:
         return rows
 
