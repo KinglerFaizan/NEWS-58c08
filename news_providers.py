@@ -288,13 +288,21 @@ def fetch_all(
     fuzzy_threshold=0.80,
     max_workers=6,
 ):
-    """RSS-first ingestion. NewsData is optional and never blocks RSS."""
+    """NewsData.io-only ingestion with category queries and image preservation."""
     per_provider = {
-        "google_rss": {"requests": 0, "articles": 0, "errors": 0, "quota_hits": 0},
         "newsdata": {"requests": 0, "articles": 0, "errors": 0, "quota_hits": 0},
     }
     errors = []
     raw = []
+    key = blank(api_keys.get("newsdata"))
+
+    if not key:
+        return [], ["NewsData.io API key is missing."], {
+            "per_provider": per_provider,
+            "raw": 0, "unique": 0, "retained": 0,
+            "dedup": {"by_url": 0, "by_title": 0, "by_fuzzy": 0},
+            "active": [],
+        }
 
     jobs = [
         (category, query)
@@ -303,52 +311,32 @@ def fetch_all(
         for query in queries
     ]
 
-    # Google News RSS is the guaranteed no-key ingestion path.
+    def job(category, query):
+        return category, fetch_newsdata(query, key)
+
     with ThreadPoolExecutor(max_workers=max_workers) as pool:
-        futures = [
-            pool.submit(_fetch_rss_job, category, query, lookback_days)
-            for category, query in jobs
-        ]
+        futures = [pool.submit(job, category, query) for category, query in jobs]
         for future in as_completed(futures):
+            category = "Unknown"
             try:
                 category, rows = future.result()
-                per_provider["google_rss"]["requests"] += 1
-                per_provider["google_rss"]["articles"] += len(rows)
+                per_provider["newsdata"]["requests"] += 1
+                per_provider["newsdata"]["articles"] += len(rows)
                 for row in rows:
                     row["provider_category"] = category
-                    row["providers"] = {"google_rss"}
+                    row["providers"] = {"newsdata"}
                     raw.append(row)
+            except QuotaExhausted as exc:
+                per_provider["newsdata"]["requests"] += 1
+                per_provider["newsdata"]["quota_hits"] += 1
+                errors.append(f"NewsData.io quota reached for {category}: {exc}")
             except Exception as exc:
-                per_provider["google_rss"]["requests"] += 1
-                per_provider["google_rss"]["errors"] += 1
-                errors.append(f"Google News RSS · {exc}")
-
-    # NewsData is attempted only as a secondary enrichment source.
-    # It is limited to ONE request so an exhausted key cannot generate
-    # ten quota errors and cannot prevent RSS results from appearing.
-    key = blank(api_keys.get("newsdata"))
-    if key:
-        try:
-            rows = fetch_newsdata("banking", key)
-            per_provider["newsdata"]["requests"] += 1
-            per_provider["newsdata"]["articles"] += len(rows)
-            for row in rows:
-                row["provider_category"] = "Transformation"
-                row["providers"] = {"newsdata"}
-                raw.append(row)
-        except QuotaExhausted as exc:
-            per_provider["newsdata"]["requests"] += 1
-            per_provider["newsdata"]["quota_hits"] += 1
-            errors.append(f"NewsData.io skipped: {exc}")
-        except Exception as exc:
-            per_provider["newsdata"]["requests"] += 1
-            per_provider["newsdata"]["errors"] += 1
-            errors.append(f"NewsData.io skipped: {exc}")
+                per_provider["newsdata"]["requests"] += 1
+                per_provider["newsdata"]["errors"] += 1
+                errors.append(f"NewsData.io · {category} · {exc}")
 
     unique, dedup = deduplicate(raw, threshold=fuzzy_threshold)
 
-    # Local lookback filter. This is applied after RSS/NewsData retrieval so
-    # the UI's date setting actually controls what is displayed.
     cutoff = datetime.now(timezone.utc) - timedelta(days=int(lookback_days))
     filtered = []
     for row in unique:
@@ -357,9 +345,7 @@ def fetch_all(
             filtered.append(row)
             continue
         try:
-            dt = datetime.fromisoformat(
-                value.replace("Z", "+00:00")
-            )
+            dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
             if dt.tzinfo is None:
                 dt = dt.replace(tzinfo=timezone.utc)
             if dt >= cutoff:
@@ -373,5 +359,6 @@ def fetch_all(
         "unique": len(unique),
         "retained": len(filtered),
         "dedup": dedup,
-        "active": ["google_rss"] + (["newsdata"] if key else []),
+        "active": ["newsdata"],
     }
+
