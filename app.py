@@ -53,7 +53,7 @@ st.markdown(
 :root{--bg:#f7f9fc;--ink:#0f172a;--muted:#64748b;--line:#e5eaf1;--blue:#1769ff;--navy:#101b30}
 .stApp{background:var(--bg);font-family:Inter,sans-serif;color:var(--ink)}
 [data-testid="stAppViewContainer"] .main .block-container,[data-testid="stMainBlockContainer"]{max-width:1500px;padding-top:0!important;padding-right:26px;padding-bottom:24px;padding-left:26px}
-header[data-testid="stHeader"]{height:0;background:transparent}
+header[data-testid="stHeader"]{height:0;background:transparent}.header-rule{height:1px;background:#e7ebf1;margin:8px -26px 20px}.header-search-input input{border:1px solid #e4e9f1!important;border-radius:24px!important;background:#fff!important;padding:10px 17px!important;font-size:12px!important;height:44px!important;box-shadow:0 1px 5px rgba(15,23,42,.04)!important}.header-search-input label{display:none!important}
 section[data-testid="stSidebar"]{background:#fff;border-right:1px solid #e5e9f0}
 section[data-testid="stSidebar"]>div{padding-top:.9rem}
 section[data-testid="stSidebar"] .stButton>button{border:0!important;background:transparent!important;color:#64748b!important;text-align:left!important;box-shadow:none!important;border-radius:10px!important;padding:9px 11px!important;font-size:13px!important;font-weight:700!important}
@@ -68,8 +68,8 @@ section[data-testid="stSidebar"] .stButton>button:hover{background:#eef4ff!impor
 .section-head{display:flex;justify-content:space-between;align-items:end;margin:0 0 9px}.section-title{font-size:22px;font-weight:900;letter-spacing:-.65px}.section-title .bolt{color:#4f46e5}.section-sub{color:#7a8799;font-size:11px;margin-top:2px}.view-all{color:#1769ff;font-weight:800;font-size:11px}
 .filter-bar{display:flex;align-items:center;gap:7px;flex-wrap:nowrap;margin:0 0 14px}.filter-label{font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:1px;min-width:38px}.filter-bar .stButton>button{height:38px!important;border:1px solid #dfe5ed!important;background:#fff!important;color:#334155!important;border-radius:8px!important;font-size:11px!important;font-weight:700!important;padding:0 12px!important}.filter-bar .stButton>button:hover{border-color:#a9c5ff!important;color:#1769ff!important;background:#f5f8ff!important}
 .feature-shell{margin-bottom:22px}.feature-carousel{position:relative;background:#0d172b;border-radius:14px;overflow:hidden;border:1px solid #1c2940;box-shadow:0 10px 26px rgba(15,23,42,.12)}.feature-slide{display:none;position:relative;height:235px;background:#0d172b}.feature-slide.active{display:block}.feature-img{position:absolute;inset:0;height:100%;overflow:hidden}.feature-img img{width:100%;height:100%;object-fit:cover;display:block;opacity:.86}.feature-img:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,12,25,.96) 0%,rgba(5,12,25,.78) 31%,rgba(5,12,25,.18) 67%,rgba(5,12,25,.22) 100%),linear-gradient(0deg,rgba(5,12,25,.45),transparent 55%)}.feature-body{position:absolute;z-index:2;left:0;bottom:0;width:62%;padding:24px 30px;color:#fff}.feature-kicker{display:flex;align-items:center;gap:8px;font-size:8px;font-weight:900;letter-spacing:1.2px;color:#bfdbfe;text-transform:uppercase;margin-bottom:8px}.feature-kicker:before{content:"";width:22px;height:2px;background:#3b82f6}.feature-title{font-size:23px;font-weight:850;line-height:1.18;letter-spacing:-.45px;color:#fff;max-width:700px}.feature-title a{color:#fff;text-decoration:none}.feature-desc{font-size:11px;color:#cbd5e1;line-height:1.4;margin-top:7px;max-width:650px}.feature-meta{font-size:9px;font-weight:700;color:#94a3b8;margin-top:9px}.feature-counter{position:absolute;z-index:4;right:16px;top:13px;font-size:9px;font-weight:800;letter-spacing:1px;color:#e2e8f0;background:rgba(15,23,42,.62);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:5px 8px}.feature-dots{position:absolute;z-index:4;right:17px;bottom:14px;display:flex;gap:4px}.feature-dot{width:14px;height:3px;border-radius:999px;background:rgba(255,255,255,.35)}.feature-dot.active{width:26px;background:#60a5fa}
-.latest-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;width:100%}.latest-card{background:#fff;border:1px solid #e3e8ef;border-radius:11px;padding:8px;box-shadow:0 3px 11px rgba(15,23,42,.045);min-height:0;display:block;transition:transform .16s ease,box-shadow .16s ease}.latest-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.08)}.latest-image{width:100%;height:128px;border-radius:8px;overflow:hidden;background:#eef2f7}.latest-image img{width:100%;height:100%;object-fit:cover;display:block}.latest-content{padding:9px 3px 3px}.latest-tags{margin-bottom:6px}.latest-tag{display:inline-block;border-radius:4px;padding:3px 6px;font-size:7px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;background:#eef4ff;color:#2563eb;margin-right:5px}.latest-title{font-size:15px;font-weight:850;line-height:1.28;margin-bottom:5px;letter-spacing:-.15px}.latest-title a{color:#0f172a;text-decoration:none}.latest-title a:hover{color:#2563eb}.latest-desc{font-size:10.5px;line-height:1.4;color:#64748b;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.latest-meta{margin-top:8px;font-size:8px;color:#64748b;font-weight:700}
-@media(max-width:1200px){.latest-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.feature-body{width:72%}}@media(max-width:900px){.header-search{display:none}.latest-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.feature-slide{height:225px}}@media(max-width:600px){.latest-grid{grid-template-columns:1fr}.feature-slide{height:330px}.feature-body{width:100%;padding:22px}.feature-title{font-size:21px}.feature-desc{font-size:11px}}
+.latest-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;width:100%}.latest-card{background:#fff;border:1px solid #e3e8ef;border-radius:11px;padding:8px;box-shadow:0 3px 11px rgba(15,23,42,.045);min-height:0;display:block;transition:transform .16s ease,box-shadow .16s ease}.latest-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.08)}.latest-image{width:100%;height:128px;border-radius:8px;overflow:hidden;background:#eef2f7}.latest-image img{width:100%;height:100%;object-fit:cover;display:block}.latest-content{padding:9px 3px 3px}.latest-tags{margin-bottom:6px}.latest-tag{display:inline-block;border-radius:4px;padding:3px 6px;font-size:7px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;background:#eef4ff;color:#2563eb;margin-right:5px}.latest-title{font-size:15px;font-weight:850;line-height:1.28;margin-bottom:5px;letter-spacing:-.15px}.latest-title a{color:#0f172a;text-decoration:none}.latest-title a:hover{color:#2563eb}.latest-desc{font-size:10.5px;line-height:1.4;color:#64748b;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.latest-meta{margin-top:8px;font-size:8px;color:#64748b;font-weight:700}
+@media(max-width:1200px){.latest-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.feature-body{width:72%}}@media(max-width:900px){.header-search{display:none}.latest-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.feature-slide{height:225px}}@media(max-width:600px){.latest-grid{grid-template-columns:1fr}.feature-slide{height:330px}.feature-body{width:100%;padding:22px}.feature-title{font-size:21px}.feature-desc{font-size:11px}}
 </style>
 """,
     unsafe_allow_html=True,
@@ -350,27 +350,48 @@ with st.spinner("Collecting banking intelligence…"):
 # HEADER
 # ============================================================
 
-st.markdown(
-    """
-<div class="top-header">
-  <div class="brand">
-    <div class="brand-icon">⌁</div>
-    <div>
-      <div><span class="brand-title">Audit<span> Intelligence</span></span><span class="live-pill">● LIVE</span></div>
-      <div class="brand-sub">GLOBAL BANKING RISK &amp; CONTROLS BRIEFING</div>
-    </div>
-  </div>
-  <div class="header-search">⌕ &nbsp; Search news, banks, regulation, audit...</div>
-  <div class="prepared">
-    <div class="prepared-meta"><div class="prepared-label">Prepared for</div><div class="prepared-name">Pragati</div><div class="prepared-role">Head of Internal Audit</div></div>
-    <div class="avatar">P</div>
-  </div>
-</div>
-""", unsafe_allow_html=True,
-)
+header_cols = st.columns([3.2, 2.15, 1.35], gap="medium")
+with header_cols[0]:
+    st.markdown(
+        '''
+        <div class="brand">
+          <div class="brand-icon">⌁</div>
+          <div>
+            <div><span class="brand-title">Audit<span> Intelligence</span></span><span class="live-pill">● LIVE</span></div>
+            <div class="brand-sub">GLOBAL BANKING RISK &amp; CONTROLS BRIEFING</div>
+          </div>
+        </div>
+        ''',
+        unsafe_allow_html=True,
+    )
+
+with header_cols[1]:
+    st.markdown('<div class="header-search-input">', unsafe_allow_html=True)
+    search_query = st.text_input(
+        "Search",
+        value=st.session_state.get("news_search", ""),
+        placeholder="Search news, banks, regulation, audit...",
+        label_visibility="collapsed",
+        key="news_search",
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with header_cols[2]:
+    st.markdown(
+        '''
+        <div class="prepared">
+          <div class="prepared-meta"><div class="prepared-label">Prepared for</div><div class="prepared-name">Pragati</div><div class="prepared-role">Head of Internal Audit</div></div>
+          <div class="avatar">P</div>
+        </div>
+        ''',
+        unsafe_allow_html=True,
+    )
+
+st.markdown('<div class="header-rule"></div>', unsafe_allow_html=True)
 
 # ============================================================
 # FEATURED INTELLIGENCE
+# ============================================================
 # ============================================================
 
 st.markdown(
@@ -380,6 +401,16 @@ st.markdown(
 
 active_category = st.session_state.get("active_category", "ALL")
 visible_news = news if active_category == "ALL" else [r for r in news if r.get("category") == active_category]
+
+search_text = (search_query or "").strip().lower()
+if search_text:
+    def matches_search(row):
+        haystack = " ".join(
+            str(row.get(k) or "")
+            for k in ("title", "description", "content", "source", "category", "provider_category")
+        ).lower()
+        return search_text in haystack
+    visible_news = [r for r in visible_news if matches_search(r)]
 
 featured = visible_news[:5]
 if featured:
