@@ -1110,7 +1110,7 @@ def calculate_audit_relevance(title, description):
     return min(score, 40)
 
 
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=900, show_spinner=False)
 def load_news(api_key, lookback_days, min_relevance, fuzzy_threshold, selected_categories):
     """Fetch, classify and filter the NewsData.io briefing."""
     categories = tuple(selected_categories)
