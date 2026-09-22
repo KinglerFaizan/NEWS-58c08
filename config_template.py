@@ -6,4 +6,4 @@ For local development, use a .streamlit/secrets.toml file (never commit it).
 Never place a real API key in this template or in the repository.
 """
 
-NEWSDATA_API_KEY = " pub_cb85f4550d47494e98426daa602dd2bf"
+NEWSDATA_API_KEY = "pub_cb85f4550d47494e98426daa602dd2bf"
