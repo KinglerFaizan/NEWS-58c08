@@ -121,6 +121,7 @@ def fetch_newsdata(query, api_key):
             "q": query[:100],
             "language": "en",
             "size": 10,
+            "image": 1,
         },
         timeout=DEFAULT_TIMEOUT,
     )
