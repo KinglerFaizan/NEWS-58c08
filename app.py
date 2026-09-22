@@ -31,25 +31,10 @@ NEWSDATA_API_KEY_HARDCODED = "pub_cb85f4550d47494e98426daa602dd2bf"
 
 # Server-side NewsData.io credential only. Never render this value in the UI.
 def get_newdata_api_key():
-    """Resolve NewsData.io from root-level Streamlit Secrets or environment variables."""
-    names = ("NEWSDATA_API_KEY", "NEWSDATA_KEY")
-
-    for name in names:
-        value = os.environ.get(name)
-        if value and value.strip():
-            return value.strip()
-
-    try:
-        for name in names:
-            try:
-                value = st.secrets[name]
-            except KeyError:
-                value = ""
-            if value is not None and str(value).strip():
-                return str(value).strip()
-    except Exception:
-        pass
-
+    """Resolve the active NewsData.io credential for this deployment."""
+    # The repository is intentionally pinned to the newly supplied credential
+    # so an older Streamlit secret cannot silently keep the deployment on the
+    # exhausted key. Replace this with a managed secret before production use.
     return NEWSDATA_API_KEY_HARDCODED.strip()
 
 
