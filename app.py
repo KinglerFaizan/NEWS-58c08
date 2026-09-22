@@ -1089,30 +1089,6 @@ def format_relative_time(value):
         return "Recent"
 
 
-def classify_category(title, description, hint=None):
-    """Classify only banking-relevant articles into the four newsroom categories."""
-    text = f"{title} {description}".lower()
-
-    # Hard gate: a generic technology/people/business story must contain
-    # explicit banking or financial-institution context before it can enter
-    # the audit-news feed. This prevents unrelated stories such as IBM
-    # workplace/expansion articles from being labelled Transformation.
-    banking_hits = sum(1 for term in BANKING_CONTEXT_TERMS if term in text)
-    if banking_hits == 0:
-        return None
-
-    scores = {
-        category: sum(1 for term in terms if term in text)
-        for category, terms in CATEGORY_TERMS.items()
-    }
-
-    best_category = max(scores, key=scores.get)
-    if scores[best_category] == 0:
-        return None
-
-    return best_category
-
-
 def calculate_audit_relevance(title, description):
     """Return a simple 0-40 audit-relevance signal score."""
     text = f"{title} {description}".lower()
