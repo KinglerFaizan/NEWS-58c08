@@ -48,60 +48,49 @@ def get_newdata_api_key():
 st.markdown(
     """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
-
-:root {
-  --bg:#f6f8fb; --card:#fff; --ink:#0b1220; --muted:#64748b;
-  --line:#e2e8f0; --blue:#2563eb; --blue2:#1d4ed8;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+:root{
+ --bg:#f7f9fc;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#e6eaf0;
+ --blue:#2563eb;--blue2:#4f46e5;--green:#18b981;
 }
-.stApp { background:var(--bg); color:var(--ink); font-family:Inter,sans-serif; }
-[data-testid="stAppViewContainer"] .main .block-container {
-  max-width:1500px; padding-top:1rem; padding-bottom:3rem;
-}
-header[data-testid="stHeader"] { background:transparent; }
-.hero {
-  display:flex; justify-content:space-between; align-items:center; gap:24px;
-  background:linear-gradient(135deg,#0b1220,#172554 58%,#1e40af);
-  color:white; border-radius:22px; padding:28px 32px; margin-bottom:18px;
-  box-shadow:0 16px 40px rgba(15,23,42,.16);
-}
-.hero h1 { margin:0; font-size:34px; font-weight:900; letter-spacing:-1px; }
-.hero p { margin:7px 0 0; color:#cbd5e1; font-size:13px; }
-.hero-badge {
-  border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.08);
-  border-radius:14px; padding:12px 16px; text-align:center; min-width:130px;
-}
-.hero-badge b { display:block; font-size:22px; }
-.hero-badge span { font-size:9px; letter-spacing:1px; text-transform:uppercase; color:#bfdbfe; }
-.metric {
-  background:#fff; border:1px solid var(--line); border-radius:14px;
-  padding:14px 16px; box-shadow:0 2px 8px rgba(15,23,42,.04);
-}
-.metric b { display:block; font-size:23px; }
-.metric span { font-size:9px; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); font-weight:800; }
-.news-card {
-  background:#fff; border:1px solid var(--line); border-radius:16px;
-  padding:18px 20px; margin-bottom:12px;
-  box-shadow:0 2px 10px rgba(15,23,42,.04);
-}
-.news-card:hover { border-color:#bfdbfe; box-shadow:0 7px 22px rgba(37,99,235,.08); }
-.news-title { font-size:17px; line-height:1.3; font-weight:800; margin:0 0 7px; }
-.news-title a { color:#0b1220; text-decoration:none; }
-.news-title a:hover { color:var(--blue); }
-.news-desc { color:#475569; font-size:12.5px; line-height:1.55; }
-.meta { color:#94a3b8; font:600 10px 'JetBrains Mono',monospace; margin-top:10px; }
-.tag {
-  display:inline-block; border-radius:999px; padding:4px 9px; margin-right:6px;
-  font-size:9px; font-weight:800; letter-spacing:.6px; text-transform:uppercase;
-  background:#eff6ff; color:#1d4ed8; border:1px solid #dbeafe;
-}
-.source { color:#64748b; font-size:10px; font-weight:700; }
-.empty {
-  background:#fff; border:1px dashed #cbd5e1; border-radius:16px;
-  padding:40px; text-align:center; color:#64748b;
-}
-.stButton>button { border-radius:9px; font-weight:700; }
-[data-testid="stTabs"] button[role="tab"] { font-weight:800 !important; }
+.stApp{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif}
+[data-testid="stAppViewContainer"] .main .block-container{max-width:1500px;padding:0 28px 40px}
+header[data-testid="stHeader"]{height:0;background:transparent}
+section[data-testid="stSidebar"]{border-right:1px solid #e5e9f0;background:#fff}
+section[data-testid="stSidebar"]>div{padding-top:1.1rem}
+.top-header{height:82px;margin:0 -28px 25px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;
+background:rgba(255,255,255,.97);border-bottom:1px solid #e8ecf2;box-shadow:0 1px 8px rgba(15,23,42,.04)}
+.brand{display:flex;align-items:center;gap:14px}.brand-icon{width:62px;height:62px;border-radius:16px;background:linear-gradient(145deg,#3346e8,#6d28d9);
+display:flex;align-items:center;justify-content:center;color:#fff;font-size:31px;box-shadow:0 9px 22px rgba(79,70,229,.24)}
+.brand-title{font-size:29px;font-weight:900;letter-spacing:-1.2px}.brand-title span{color:#2563eb}
+.brand-sub{margin-top:2px;color:#64748b;font-size:10px;font-weight:800;letter-spacing:2px}
+.live-pill{margin-left:10px;padding:6px 12px;border-radius:999px;background:#eafaf3;color:#18a56f;font-size:10px;font-weight:900;text-transform:uppercase}
+.header-search{width:350px;padding:13px 20px;border:1px solid #e5e9f0;border-radius:28px;background:#fff;color:#64748b;font-size:13px;box-shadow:0 2px 8px rgba(15,23,42,.03)}
+.prepared{display:flex;align-items:center;gap:13px}.prepared-meta{text-align:right}.prepared-label{font-size:10px;color:#94a3b8}.prepared-name{font-size:16px;font-weight:800}.prepared-role{font-size:11px;color:#64748b}.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(145deg,#2563eb,#4f46e5);color:#fff;
+display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800}
+.sidebar-brand{display:flex;align-items:center;gap:10px;padding:5px 4px 20px}.sidebar-brand-icon{width:34px;height:34px;border-radius:10px;background:#eef4ff;color:#2563eb;
+display:flex;align-items:center;justify-content:center;font-size:20px}.sidebar-brand-title{font-weight:900;font-size:15px}.sidebar-brand-sub{font-size:9px;color:#94a3b8;letter-spacing:.6px}
+section[data-testid="stSidebar"] .stButton>button{border:0!important;background:transparent!important;color:#64748b!important;text-align:left!important;box-shadow:none!important;border-radius:12px!important;padding:11px 13px!important;font-weight:700!important}
+section[data-testid="stSidebar"] .stButton>button:hover{background:#eef4ff!important;color:#2563eb!important}
+.side-section{margin:12px 4px 8px;font-size:10px;font-weight:900;color:#94a3b8;letter-spacing:1.2px;text-transform:uppercase}
+.live-data{border-top:1px solid #edf0f4;border-bottom:1px solid #edf0f4;padding:15px 4px;margin:10px 0}.live-row{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13px}.live-dot{width:9px;height:9px;background:#18b981;border-radius:50%;display:inline-block;margin-right:7px}.active-pill{background:#dcf8eb;color:#18a56f;border-radius:999px;padding:4px 10px;font-size:10px}
+.quick-refresh{margin:8px 0 15px}
+.quick-refresh .stButton>button{background:#1769ff!important;color:#fff!important;padding:12px!important;border-radius:9px!important}
+.section-head{display:flex;justify-content:space-between;align-items:end;margin:4px 0 16px}
+.section-title{font-size:27px;font-weight:900;letter-spacing:-.8px}.section-title .bolt{color:#6538ed}.section-sub{color:#7a8799;font-size:13px;margin-top:3px}.view-all{color:#1769ff;font-weight:800;font-size:13px}
+.feature-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:27px}
+.feature-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 3px 12px rgba(15,23,42,.07);border:1px solid #edf0f4}
+.feature-img{height:150px;background:#dbe4ef;overflow:hidden}.feature-img img{width:100%;height:100%;object-fit:cover}
+.feature-body{padding:12px 14px 15px}.feature-tag{display:inline-block;padding:4px 9px;border-radius:999px;font-size:9px;font-weight:900;background:#eef4ff;color:#4f46e5;margin-bottom:8px}
+.feature-title{font-size:16px;font-weight:850;line-height:1.35;min-height:65px}.feature-desc{font-size:11px;color:#7a8799;line-height:1.45;margin-top:7px;min-height:48px}.feature-meta{font-size:10px;font-weight:800;color:#64748b;margin-top:10px}
+.latest-wrap{background:transparent}.latest-card{display:flex;gap:18px;background:#fff;border:1px solid #edf0f4;border-radius:14px;padding:14px 16px;margin-bottom:12px;
+box-shadow:0 3px 12px rgba(15,23,42,.045);min-height:180px}.latest-image{width:310px;min-width:310px;height:175px;border-radius:9px;overflow:hidden;background:#e2e8f0}.latest-image img{width:100%;height:100%;object-fit:cover}
+.latest-content{padding:3px 5px;flex:1}.latest-tags{margin-bottom:8px}.latest-tag{display:inline-block;border-radius:999px;padding:5px 10px;font-size:9px;font-weight:900;margin-right:7px;background:#eef4ff;color:#2563eb}
+.latest-title{font-size:20px;font-weight:850;line-height:1.3;margin-bottom:7px}.latest-title a{color:#0f172a;text-decoration:none}.latest-title a:hover{color:#2563eb}.latest-desc{font-size:12.5px;line-height:1.55;color:#64748b;max-width:850px}.latest-meta{margin-top:13px;font-size:11px;color:#64748b;font-weight:800}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}.filter-label{font-size:11px;font-weight:800;color:#94a3b8;margin:7px 5px 0 0}
+.stButton>button{border-radius:10px;font-weight:800}
+@media(max-width:1000px){.feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.header-search{display:none}}
+@media(max-width:650px){.feature-grid{grid-template-columns:1fr}.latest-card{flex-direction:column}.latest-image{width:100%;min-width:0}.brand-sub{display:none}}
 </style>
 """,
     unsafe_allow_html=True,
@@ -227,28 +216,27 @@ def fmt_date(value):
 
 def card(row):
     title = escape(str(row.get("title") or "Untitled"))
-    desc = escape(str(row.get("description") or row.get("content") or "No description available."))
-    desc = desc[:420]
+    desc = escape(str(row.get("description") or row.get("content") or "No description available."))[:430]
     url = str(row.get("url") or "").strip()
     source = escape(str(row.get("source") or "Unknown"))
     category = escape(str(row.get("category") or "News"))
-
-    link = (
-        f'<a href="{escape(url, quote=True)}" target="_blank">{title}</a>'
-        if url else title
+    image = escape(str(row.get("image_url") or ""), quote=True)
+    img_html = (
+        f'<img src="{image}" alt="" />'
+        if image else '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:28px">◈</div>'
     )
-
-    st.markdown(
-        f"""
-<div class="news-card">
-  <div><span class="tag">{category}</span><span class="source">{source}</span></div>
-  <div class="news-title">{link}</div>
-  <div class="news-desc">{desc}</div>
-  <div class="meta">{fmt_date(row.get("published_at"))}</div>
+    link = f'<a href="{escape(url, quote=True)}" target="_blank">{title}</a>' if url else title
+    return f"""
+<div class="latest-card">
+  <div class="latest-image">{img_html}</div>
+  <div class="latest-content">
+    <div class="latest-tags"><span class="latest-tag">{category}</span></div>
+    <div class="latest-title">{link}</div>
+    <div class="latest-desc">{desc}</div>
+    <div class="latest-meta">{source} &nbsp;•&nbsp; {fmt_date(row.get("published_at"))}</div>
+  </div>
 </div>
-""",
-        unsafe_allow_html=True,
-    )
+"""
 
 
 # ============================================================
@@ -256,21 +244,29 @@ def card(row):
 # ============================================================
 
 with st.sidebar:
-    st.markdown("## ⚙️ Intelligence Controls")
-    lookback = st.slider("News lookback", 1, 7, 2, 1)
-    selected = st.multiselect(
-        "Categories",
-        list(CATEGORY_TERMS.keys()),
-        default=list(CATEGORY_TERMS.keys()),
-    )
+    st.markdown("""
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">⌂</div>
+      <div><div class="sidebar-brand-title">News Intelligence</div>
+      <div class="sidebar-brand-sub">Audit &amp; Banking Briefing</div></div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    refresh = st.button("🔄 Refresh News", use_container_width=True)
+    nav = ["⌂  News Feed","▦  Categories","♧  Global Banks","♧  Watchlist","▱  Saved","⇧  Export","⚙  Diagnostics"]
+    for idx, label in enumerate(nav):
+        st.button(label, key=f"nav_{idx}", use_container_width=True)
 
-    st.markdown("---")
-    st.caption("Sources")
-    st.write("• NewsData.io")
-    st.write("• Google News RSS fallback")
-    st.caption("The fallback uses public RSS and does not consume NewsData credits.")
+    st.markdown('<div class="side-section">Live Data</div>', unsafe_allow_html=True)
+    st.markdown('<div class="live-data"><div class="live-row"><span><span class="live-dot"></span>NewsData.io</span><span class="active-pill">Active</span></div><div style="font-size:10px;color:#94a3b8;margin-top:9px">Live banking intelligence feed</div></div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="side-section">Quick Controls</div>', unsafe_allow_html=True)
+    st.markdown('<div class="quick-refresh">', unsafe_allow_html=True)
+    refresh = st.button("⟳  Refresh All Data", use_container_width=True, key="refresh_news")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="side-section">Filters & Settings</div>', unsafe_allow_html=True)
+    lookback = st.slider("News lookback", 1, 7, 7, 1)
+    selected = st.multiselect("Categories", list(CATEGORY_TERMS.keys()), default=list(CATEGORY_TERMS.keys()))
 
     if refresh:
         load_news.clear()
@@ -292,85 +288,77 @@ with st.spinner("Collecting banking intelligence…"):
 
 st.markdown(
     f"""
-<div class="hero">
-  <div>
-    <h1>Audit Intelligence</h1>
-    <p>Global banking news · regulation · transformation · people · cyber & technology</p>
+<div class="top-header">
+  <div class="brand">
+    <div class="brand-icon">⌕</div>
+    <div>
+      <div><span class="brand-title">Audit<span> Intelligence</span></span><span class="live-pill">● LIVE</span></div>
+      <div class="brand-sub">GLOBAL BANKING RISK &amp; CONTROLS BRIEFING</div>
+    </div>
   </div>
-  <div class="hero-badge">
-    <b>{len(news)}</b>
-    <span>Relevant stories</span>
+  <div class="header-search">⌕ &nbsp; Search news, banks, regulation, audit...</div>
+  <div class="prepared">
+    <div class="prepared-meta"><div class="prepared-label">Prepared for</div><div class="prepared-name">Pragati</div><div class="prepared-role">Head of Internal Audit</div></div>
+    <div class="avatar">P</div>
   </div>
 </div>
-""",
-    unsafe_allow_html=True,
+""", unsafe_allow_html=True,
 )
 
 # ============================================================
-# METRICS
+# TOP NEWS
 # ============================================================
 
-counts = {cat: sum(1 for r in news if r.get("category") == cat) for cat in CATEGORY_TERMS}
+st.markdown(
+    f'<div class="section-head"><div><div class="section-title"><span class="bolt">ϟ</span> Today’s Top Banking News</div><div class="section-sub">Key developments in banking, regulation, risk and technology</div></div><div class="view-all">{datetime.now(timezone.utc).strftime("%A, %d %B %Y")} &nbsp; →</div></div>',
+    unsafe_allow_html=True,
+)
 
-cols = st.columns(6)
-metric_names = [
-    ("Total", len(news)),
-    ("Transformation", counts["Transformation"]),
-    ("Regulation", counts["Regulation"]),
-    ("People", counts["People"]),
-    ("Cyber & Tech", counts["Cyber & Tech"]),
-    ("Global Banks", counts["Global Banks"]),
-]
-for col, (name, value) in zip(cols, metric_names):
+# Category controls remain functional while visually matching the reference.
+st.markdown('<div class="filter-bar"><span class="filter-label">FILTER</span>', unsafe_allow_html=True)
+filter_cols = st.columns(5)
+filter_names = ["ALL NEWS","Transformation","Regulation","People","Global Banks"]
+filter_keys = ["ALL"] + filter_names[1:]
+for col, label, key in zip(filter_cols, filter_names, filter_keys):
     with col:
-        st.markdown(
-            f'<div class="metric"><b>{value}</b><span>{escape(name)}</span></div>',
-            unsafe_allow_html=True,
-        )
+        if st.button(label, key=f"category_{key}", use_container_width=True):
+            st.session_state["active_category"] = key
+            st.rerun()
+st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown("")
+active_category = st.session_state.get("active_category", "ALL")
+visible_news = news if active_category == "ALL" else [r for r in news if r.get("category") == active_category]
 
-if errors:
-    with st.expander("⚠️ Ingestion diagnostics", expanded=True):
-        for err in errors:
-            st.warning(err)
-
-        pp = diagnostics.get("per_provider", {})
-        for provider, info in pp.items():
-            st.write(
-                f"**{provider}** — requests: {info.get('requests', 0)} · "
-                f"articles: {info.get('articles', 0)} · "
-                f"errors: {info.get('errors', 0)} · "
-                f"quota hits: {info.get('quota_hits', 0)}"
-            )
+featured = visible_news[:5]
+if featured:
+    feature_html = '<div class="feature-grid">'
+    for idx, row in enumerate(featured, 1):
+        title = escape(str(row.get("title") or "Untitled"))
+        desc = escape(str(row.get("description") or row.get("content") or ""))[:155]
+        category = escape(str(row.get("category") or "News"))
+        source = escape(str(row.get("source") or "Unknown"))
+        image = escape(str(row.get("image_url") or ""), quote=True)
+        img = f'<img src="{image}" alt="" />' if image else '<div style="height:100%;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:30px">◈</div>'
+        url = str(row.get("url") or "").strip()
+        title_html = f'<a href="{escape(url, quote=True)}" target="_blank" style="color:#0f172a;text-decoration:none">{title}</a>' if url else title
+        feature_html += f'<div class="feature-card"><div class="feature-img">{img}</div><div class="feature-body"><span class="feature-tag">{category}</span><div class="feature-title">{title_html}</div><div class="feature-desc">{desc}</div><div class="feature-meta">{source} &nbsp;•&nbsp; {fmt_date(row.get("published_at"))}</div></div></div>'
+    feature_html += '</div>'
+    st.markdown(feature_html, unsafe_allow_html=True)
 
 # ============================================================
-# NEWSROOM
+# LATEST NEWS
 # ============================================================
 
-if not news:
-    st.markdown(
-        """
-<div class="empty">
-  <h3>No banking stories were returned.</h3>
-  <p>Use <b>Refresh News</b>. If the API is unavailable, the app will use its public RSS fallback.</p>
-</div>
-""",
-        unsafe_allow_html=True,
-    )
+st.markdown(
+    '<div class="section-head"><div><div class="section-title">▣ Latest News &amp; Insights</div><div class="section-sub">Real-time updates from global sources relevant to audit, risk and compliance</div></div><div class="view-all">Sort by&nbsp; <b>Latest⌄</b></div></div>',
+    unsafe_allow_html=True,
+)
+
+if not visible_news:
+    st.markdown('<div class="empty"><h3>No banking stories were returned.</h3><p>Try another category or refresh the feed.</p></div>', unsafe_allow_html=True)
 else:
-    tabs = ["ALL"] + list(CATEGORY_TERMS.keys())
-    tab_objs = st.tabs(tabs)
-
-    for tab, name in zip(tab_objs, tabs):
-        with tab:
-            subset = news if name == "ALL" else [r for r in news if r.get("category") == name]
-            st.caption(f"{len(subset)} stories")
-            if not subset:
-                st.info("No stories in this category for the selected period.")
-            else:
-                for row in subset:
-                    card(row)
+    for row in visible_news:
+        st.markdown(card(row), unsafe_allow_html=True)
 
 # ============================================================
 # FOOTER
