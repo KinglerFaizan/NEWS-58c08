@@ -50,69 +50,26 @@ st.markdown(
     """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-:root{
- --bg:#f7f9fc;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#e6eaf0;
- --blue:#2563eb;--blue2:#4f46e5;--green:#18b981;
-}
-.stApp{background:var(--bg);color:var(--ink);font-family:Inter,sans-serif}
-[data-testid="stAppViewContainer"] .main .block-container{max-width:1500px;padding:0 28px 40px}
+:root{--bg:#f7f9fc;--ink:#0f172a;--muted:#64748b;--line:#e5eaf1;--blue:#1769ff;--navy:#101b30}
+.stApp{background:var(--bg);font-family:Inter,sans-serif;color:var(--ink)}
+[data-testid="stAppViewContainer"] .main .block-container{max-width:1600px;padding:0 26px 30px}
 header[data-testid="stHeader"]{height:0;background:transparent}
-section[data-testid="stSidebar"]{border-right:1px solid #e5e9f0;background:#fff}
-section[data-testid="stSidebar"]>div{padding-top:1.1rem}
-.top-header{height:82px;margin:0 -28px 25px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;
-background:rgba(255,255,255,.97);border-bottom:1px solid #e8ecf2;box-shadow:0 1px 8px rgba(15,23,42,.04)}
-.brand{display:flex;align-items:center;gap:14px}.brand-icon{width:62px;height:62px;border-radius:16px;background:linear-gradient(145deg,#3346e8,#6d28d9);
-display:flex;align-items:center;justify-content:center;color:#fff;font-size:31px;box-shadow:0 9px 22px rgba(79,70,229,.24)}
-.brand-title{font-size:29px;font-weight:900;letter-spacing:-1.2px}.brand-title span{color:#2563eb}
-.brand-sub{margin-top:2px;color:#64748b;font-size:10px;font-weight:800;letter-spacing:2px}
-.live-pill{margin-left:10px;padding:6px 12px;border-radius:999px;background:#eafaf3;color:#18a56f;font-size:10px;font-weight:900;text-transform:uppercase}
-.header-search{width:350px;padding:13px 20px;border:1px solid #e5e9f0;border-radius:28px;background:#fff;color:#64748b;font-size:13px;box-shadow:0 2px 8px rgba(15,23,42,.03)}
-.prepared{display:flex;align-items:center;gap:13px}.prepared-meta{text-align:right}.prepared-label{font-size:10px;color:#94a3b8}.prepared-name{font-size:16px;font-weight:800}.prepared-role{font-size:11px;color:#64748b}.avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(145deg,#2563eb,#4f46e5);color:#fff;
-display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:800}
-.sidebar-brand{display:flex;align-items:center;gap:10px;padding:5px 4px 20px}.sidebar-brand-icon{width:34px;height:34px;border-radius:10px;background:#eef4ff;color:#2563eb;
-display:flex;align-items:center;justify-content:center;font-size:20px}.sidebar-brand-title{font-weight:900;font-size:15px}.sidebar-brand-sub{font-size:9px;color:#94a3b8;letter-spacing:.6px}
-section[data-testid="stSidebar"] .stButton>button{border:0!important;background:transparent!important;color:#64748b!important;text-align:left!important;box-shadow:none!important;border-radius:12px!important;padding:11px 13px!important;font-weight:700!important}
-section[data-testid="stSidebar"] .stButton>button:hover{background:#eef4ff!important;color:#2563eb!important}
-.side-section{margin:12px 4px 8px;font-size:10px;font-weight:900;color:#94a3b8;letter-spacing:1.2px;text-transform:uppercase}
-.live-data{border-top:1px solid #edf0f4;border-bottom:1px solid #edf0f4;padding:15px 4px;margin:10px 0}.live-row{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:13px}.live-dot{width:9px;height:9px;background:#18b981;border-radius:50%;display:inline-block;margin-right:7px}.active-pill{background:#dcf8eb;color:#18a56f;border-radius:999px;padding:4px 10px;font-size:10px}
-.quick-refresh{margin:8px 0 15px}
-.quick-refresh .stButton>button{background:#1769ff!important;color:#fff!important;padding:12px!important;border-radius:9px!important}
-.section-head{display:flex;justify-content:space-between;align-items:end;margin:4px 0 16px}
-.section-title{font-size:27px;font-weight:900;letter-spacing:-.8px}.section-title .bolt{color:#6538ed}.section-sub{color:#7a8799;font-size:13px;margin-top:3px}.view-all{color:#1769ff;font-weight:800;font-size:13px}
-.feature-shell{margin-bottom:30px}
-.feature-carousel{position:relative;background:#0b1220;border-radius:18px;overflow:hidden;border:1px solid #1e293b;box-shadow:0 18px 42px rgba(15,23,42,.16)}
-.feature-slide{display:none;position:relative;height:390px;background:#0b1220}
-.feature-slide.active{display:block}
-.feature-img{position:absolute;inset:0;height:100%;background:linear-gradient(135deg,#172033,#0b1220);overflow:hidden}
-.feature-img img{width:100%;height:100%;object-fit:cover;display:block;opacity:.82}
-.feature-img:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,10,20,.94) 0%,rgba(5,10,20,.72) 35%,rgba(5,10,20,.18) 72%,rgba(5,10,20,.38) 100%),linear-gradient(0deg,rgba(5,10,20,.62),transparent 45%)}
-.feature-body{position:absolute;z-index:2;left:0;bottom:0;width:68%;padding:42px 46px 44px;color:#fff}
-.feature-kicker{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:800;letter-spacing:1.5px;color:#bfdbfe;text-transform:uppercase;margin-bottom:15px}
-.feature-kicker:before{content:"";width:28px;height:2px;background:#3b82f6}
-.feature-title{font-size:31px;font-weight:850;line-height:1.18;letter-spacing:-.8px;color:#fff;max-width:850px}
-.feature-title a{color:#fff;text-decoration:none}
-.feature-title a:hover{color:#bfdbfe}
-.feature-desc{font-size:13px;color:#cbd5e1;line-height:1.55;margin-top:12px;max-width:760px}
-.feature-meta{font-size:10px;font-weight:700;color:#94a3b8;margin-top:18px;letter-spacing:.2px}
-.feature-counter{position:absolute;z-index:4;right:24px;top:22px;font-size:10px;font-weight:800;letter-spacing:1px;color:#e2e8f0;background:rgba(15,23,42,.62);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:7px 11px;backdrop-filter:blur(8px)}
-.feature-dots{position:absolute;z-index:4;left:46px;bottom:22px;display:flex;gap:6px}
-.feature-dot{width:22px;height:3px;border-radius:999px;background:rgba(255,255,255,.28);transition:all .25s}
-.feature-dot.active{width:38px;background:#60a5fa}
-.latest-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-.latest-card{background:#fff;border:1px solid #e5e9f0;border-radius:14px;padding:11px;box-shadow:0 4px 16px rgba(15,23,42,.045);min-height:0;display:block;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
-.latest-card:hover{transform:translateY(-2px);border-color:#cbd5e1;box-shadow:0 10px 26px rgba(15,23,42,.08)}
-.latest-image{width:100%;height:205px;border-radius:9px;overflow:hidden;background:#eef2f7}
-.latest-image img{width:100%;height:100%;object-fit:cover;display:block}
-.latest-content{padding:13px 7px 8px}
-.latest-tags{margin-bottom:8px}
-.latest-tag{display:inline-block;border-radius:5px;padding:4px 7px;font-size:8px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;background:#f1f5f9;color:#475569;margin-right:7px}
-.latest-title{font-size:18px;font-weight:850;line-height:1.3;margin-bottom:7px;letter-spacing:-.25px}
-.latest-title a{color:#0f172a;text-decoration:none}
-.latest-title a:hover{color:#2563eb}
-.latest-desc{font-size:12px;line-height:1.52;color:#64748b}
-.latest-meta{margin-top:12px;font-size:10px;color:#64748b;font-weight:700}
-@media(max-width:1000px){.header-search{display:none}.feature-slide{height:350px}.feature-body{width:78%;padding:34px}.feature-title{font-size:26px}.latest-grid{grid-template-columns:1fr}}
-@media(max-width:650px){.feature-slide{height:430px}.feature-body{width:100%;padding:24px}.feature-title{font-size:22px}.feature-desc{font-size:12px}.feature-dots{left:24px}.latest-grid{grid-template-columns:1fr}.latest-image{height:190px}.brand-sub{display:none}}
+section[data-testid="stSidebar"]{background:#fff;border-right:1px solid #e5e9f0}
+section[data-testid="stSidebar"]>div{padding-top:.9rem}
+section[data-testid="stSidebar"] .stButton>button{border:0!important;background:transparent!important;color:#64748b!important;text-align:left!important;box-shadow:none!important;border-radius:10px!important;padding:9px 11px!important;font-size:13px!important;font-weight:700!important}
+section[data-testid="stSidebar"] .stButton>button:hover{background:#eef4ff!important;color:#1769ff!important}
+.sidebar-brand{display:flex;align-items:center;gap:10px;padding:4px 3px 13px}.sidebar-brand-icon{width:34px;height:34px;border-radius:9px;background:#eef4ff;color:#1769ff;display:flex;align-items:center;justify-content:center;font-size:18px}.sidebar-brand-title{font-weight:900;font-size:14px}.sidebar-brand-sub{font-size:8px;color:#94a3b8;letter-spacing:.7px;margin-top:1px}
+.side-section{margin:10px 3px 7px;font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:1.1px;text-transform:uppercase}
+.live-data{border-top:1px solid #edf0f4;border-bottom:1px solid #edf0f4;padding:11px 3px;margin:7px 0}.live-row{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:12px}.live-dot{width:8px;height:8px;background:#18b981;border-radius:50%;display:inline-block;margin-right:6px}.active-pill{background:#dcf8eb;color:#18a56f;border-radius:999px;padding:3px 8px;font-size:9px}
+.quick-refresh{margin:5px 0 10px}.quick-refresh .stButton>button{background:#1769ff!important;color:#fff!important;padding:10px!important;border-radius:9px!important}
+.top-header{height:70px;margin:0 -26px 18px;padding:0 26px;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #e7ebf1;box-shadow:0 1px 8px rgba(15,23,42,.035)}
+.brand{display:flex;align-items:center;gap:11px}.brand-icon{width:50px;height:50px;border-radius:13px;background:linear-gradient(145deg,#246bff,#5338dc);display:flex;align-items:center;justify-content:center;color:#fff;font-size:25px;box-shadow:0 7px 18px rgba(37,99,235,.22)}.brand-title{font-size:23px;font-weight:900;letter-spacing:-1px}.brand-title span{color:#2563eb}.brand-sub{color:#64748b;font-size:8px;font-weight:800;letter-spacing:1.7px;margin-top:1px}.live-pill{margin-left:8px;padding:4px 9px;border-radius:999px;background:#eafaf3;color:#18a56f;font-size:9px;font-weight:900}
+.header-search{width:330px;padding:10px 17px;border:1px solid #e4e9f1;border-radius:24px;background:#fff;color:#64748b;font-size:12px}.prepared{display:flex;align-items:center;gap:10px}.prepared-meta{text-align:right}.prepared-label{font-size:9px;color:#94a3b8}.prepared-name{font-size:14px;font-weight:800}.prepared-role{font-size:10px;color:#64748b}.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(145deg,#2563eb,#4f46e5);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800}
+.section-head{display:flex;justify-content:space-between;align-items:end;margin:2px 0 10px}.section-title{font-size:23px;font-weight:900;letter-spacing:-.65px}.section-title .bolt{color:#4f46e5}.section-sub{color:#7a8799;font-size:11px;margin-top:2px}.view-all{color:#1769ff;font-weight:800;font-size:11px}
+.filter-bar{display:flex;align-items:center;gap:7px;flex-wrap:nowrap;margin:0 0 11px}.filter-label{font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:1px;min-width:38px}.filter-bar .stButton>button{height:32px!important;border:1px solid #dfe5ed!important;background:#fff!important;color:#334155!important;border-radius:8px!important;font-size:11px!important;font-weight:700!important;padding:0 10px!important}.filter-bar .stButton>button:hover{border-color:#a9c5ff!important;color:#1769ff!important;background:#f5f8ff!important}
+.feature-shell{margin-bottom:20px}.feature-carousel{position:relative;background:#0d172b;border-radius:14px;overflow:hidden;border:1px solid #1c2940;box-shadow:0 10px 26px rgba(15,23,42,.12)}.feature-slide{display:none;position:relative;height:235px;background:#0d172b}.feature-slide.active{display:block}.feature-img{position:absolute;inset:0;height:100%;overflow:hidden}.feature-img img{width:100%;height:100%;object-fit:cover;display:block;opacity:.86}.feature-img:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,12,25,.96) 0%,rgba(5,12,25,.78) 31%,rgba(5,12,25,.18) 67%,rgba(5,12,25,.22) 100%),linear-gradient(0deg,rgba(5,12,25,.45),transparent 55%)}.feature-body{position:absolute;z-index:2;left:0;bottom:0;width:62%;padding:24px 30px;color:#fff}.feature-kicker{display:flex;align-items:center;gap:8px;font-size:8px;font-weight:900;letter-spacing:1.2px;color:#bfdbfe;text-transform:uppercase;margin-bottom:8px}.feature-kicker:before{content:"";width:22px;height:2px;background:#3b82f6}.feature-title{font-size:23px;font-weight:850;line-height:1.18;letter-spacing:-.45px;color:#fff;max-width:700px}.feature-title a{color:#fff;text-decoration:none}.feature-desc{font-size:11px;color:#cbd5e1;line-height:1.4;margin-top:7px;max-width:650px}.feature-meta{font-size:9px;font-weight:700;color:#94a3b8;margin-top:9px}.feature-counter{position:absolute;z-index:4;right:16px;top:13px;font-size:9px;font-weight:800;letter-spacing:1px;color:#e2e8f0;background:rgba(15,23,42,.62);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:5px 8px}.feature-dots{position:absolute;z-index:4;right:17px;bottom:14px;display:flex;gap:4px}.feature-dot{width:14px;height:3px;border-radius:999px;background:rgba(255,255,255,.35)}.feature-dot.active{width:26px;background:#60a5fa}
+.latest-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px}.latest-card{background:#fff;border:1px solid #e3e8ef;border-radius:11px;padding:8px;box-shadow:0 3px 11px rgba(15,23,42,.045);min-height:0;display:block;transition:transform .16s ease,box-shadow .16s ease}.latest-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.08)}.latest-image{width:100%;height:120px;border-radius:7px;overflow:hidden;background:#eef2f7}.latest-image img{width:100%;height:100%;object-fit:cover;display:block}.latest-content{padding:9px 3px 3px}.latest-tags{margin-bottom:6px}.latest-tag{display:inline-block;border-radius:4px;padding:3px 6px;font-size:7px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;background:#eef4ff;color:#2563eb;margin-right:5px}.latest-title{font-size:14px;font-weight:850;line-height:1.28;margin-bottom:5px;letter-spacing:-.15px}.latest-title a{color:#0f172a;text-decoration:none}.latest-title a:hover{color:#2563eb}.latest-desc{font-size:10px;line-height:1.4;color:#64748b;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.latest-meta{margin-top:8px;font-size:8px;color:#64748b;font-weight:700}
+@media(max-width:1200px){.latest-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.feature-body{width:72%}}@media(max-width:900px){.header-search{display:none}.latest-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.feature-slide{height:225px}}@media(max-width:600px){.latest-grid{grid-template-columns:1fr}.feature-slide{height:330px}.feature-body{width:100%;padding:22px}.feature-title{font-size:21px}.feature-desc{font-size:11px}}
 </style>
 """,
     unsafe_allow_html=True,
@@ -377,10 +334,10 @@ with st.spinner("Collecting banking intelligence…"):
 # ============================================================
 
 st.markdown(
-    f"""
+    """
 <div class="top-header">
   <div class="brand">
-    <div class="brand-icon">⌕</div>
+    <div class="brand-icon">⌁</div>
     <div>
       <div><span class="brand-title">Audit<span> Intelligence</span></span><span class="live-pill">● LIVE</span></div>
       <div class="brand-sub">GLOBAL BANKING RISK &amp; CONTROLS BRIEFING</div>
@@ -396,15 +353,30 @@ st.markdown(
 )
 
 # ============================================================
-# TOP NEWS
+# FEATURED INTELLIGENCE
 # ============================================================
 
 st.markdown(
-    f'<div class="section-head"><div><div class="section-title"><span class="bolt">ϟ</span> Today’s Top Banking News</div><div class="section-sub">Key developments in banking, regulation, risk and technology</div></div><div class="view-all">{datetime.now(timezone.utc).strftime("%A, %d %B %Y")} &nbsp; →</div></div>',
+    '<div class="section-head"><div><div class="section-title"><span class="bolt">▌</span> Featured Intelligence</div><div class="section-sub">Key developments in banking, regulation, risk and technology</div></div><div class="view-all">01 — 05</div></div>',
     unsafe_allow_html=True,
 )
 
-# Category controls remain functional while visually matching the reference.
+active_category = st.session_state.get("active_category", "ALL")
+visible_news = news if active_category == "ALL" else [r for r in news if r.get("category") == active_category]
+
+featured = visible_news[:5]
+if featured:
+    render_featured_carousel(featured)
+
+# ============================================================
+# LATEST NEWS & FILTERS
+# ============================================================
+
+st.markdown(
+    '<div class="section-head"><div><div class="section-title"><span class="bolt">▌</span> Latest News &amp; Insights</div><div class="section-sub">Real-time updates from global sources relevant to audit, risk and compliance</div></div><div class="view-all">View All&nbsp; →</div></div>',
+    unsafe_allow_html=True,
+)
+
 st.markdown('<div class="filter-bar"><span class="filter-label">FILTER</span>', unsafe_allow_html=True)
 filter_cols = st.columns(5)
 filter_names = ["ALL NEWS","Transformation","Regulation","People","Global Banks"]
@@ -415,22 +387,6 @@ for col, label, key in zip(filter_cols, filter_names, filter_keys):
             st.session_state["active_category"] = key
             st.rerun()
 st.markdown('</div>', unsafe_allow_html=True)
-
-active_category = st.session_state.get("active_category", "ALL")
-visible_news = news if active_category == "ALL" else [r for r in news if r.get("category") == active_category]
-
-featured = visible_news[:5]
-if featured:
-    render_featured_carousel(featured)
-
-# ============================================================
-# LATEST NEWS
-# ============================================================
-
-st.markdown(
-    '<div class="section-head"><div><div class="section-title">▣ Latest News &amp; Insights</div><div class="section-sub">Real-time updates from global sources relevant to audit, risk and compliance</div></div><div class="view-all">Latest&nbsp;⌄</div></div>',
-    unsafe_allow_html=True,
-)
 
 if not visible_news:
     st.markdown('<div class="empty"><h3>No banking stories were returned.</h3><p>Try another category or refresh the feed.</p></div>', unsafe_allow_html=True)
