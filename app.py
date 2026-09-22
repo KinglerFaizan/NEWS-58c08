@@ -68,7 +68,7 @@ section[data-testid="stSidebar"] .stButton>button:hover{background:#eef4ff!impor
 .section-head{display:flex;justify-content:space-between;align-items:end;margin:0 0 9px}.section-title{font-size:22px;font-weight:900;letter-spacing:-.65px}.section-title .bolt{color:#4f46e5}.section-sub{color:#7a8799;font-size:11px;margin-top:2px}.view-all{color:#1769ff;font-weight:800;font-size:11px}
 .filter-bar{display:flex;align-items:center;gap:7px;flex-wrap:nowrap;margin:0 0 14px}.filter-label{font-size:9px;font-weight:900;color:#94a3b8;letter-spacing:1px;min-width:38px}.filter-bar .stButton>button{height:38px!important;border:1px solid #dfe5ed!important;background:#fff!important;color:#334155!important;border-radius:8px!important;font-size:11px!important;font-weight:700!important;padding:0 12px!important}.filter-bar .stButton>button:hover{border-color:#a9c5ff!important;color:#1769ff!important;background:#f5f8ff!important}
 .feature-shell{margin-bottom:22px}.feature-carousel{position:relative;background:#0d172b;border-radius:14px;overflow:hidden;border:1px solid #1c2940;box-shadow:0 10px 26px rgba(15,23,42,.12)}.feature-slide{display:none;position:relative;height:235px;background:#0d172b}.feature-slide.active{display:block}.feature-img{position:absolute;inset:0;height:100%;overflow:hidden}.feature-img img{width:100%;height:100%;object-fit:cover;display:block;opacity:.86}.feature-img:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,12,25,.96) 0%,rgba(5,12,25,.78) 31%,rgba(5,12,25,.18) 67%,rgba(5,12,25,.22) 100%),linear-gradient(0deg,rgba(5,12,25,.45),transparent 55%)}.feature-body{position:absolute;z-index:2;left:0;bottom:0;width:62%;padding:24px 30px;color:#fff}.feature-kicker{display:flex;align-items:center;gap:8px;font-size:8px;font-weight:900;letter-spacing:1.2px;color:#bfdbfe;text-transform:uppercase;margin-bottom:8px}.feature-kicker:before{content:"";width:22px;height:2px;background:#3b82f6}.feature-title{font-size:23px;font-weight:850;line-height:1.18;letter-spacing:-.45px;color:#fff;max-width:700px}.feature-title a{color:#fff;text-decoration:none}.feature-desc{font-size:11px;color:#cbd5e1;line-height:1.4;margin-top:7px;max-width:650px}.feature-meta{font-size:9px;font-weight:700;color:#94a3b8;margin-top:9px}.feature-counter{position:absolute;z-index:4;right:16px;top:13px;font-size:9px;font-weight:800;letter-spacing:1px;color:#e2e8f0;background:rgba(15,23,42,.62);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:5px 8px}.feature-dots{position:absolute;z-index:4;right:17px;bottom:14px;display:flex;gap:4px}.feature-dot{width:14px;height:3px;border-radius:999px;background:rgba(255,255,255,.35)}.feature-dot.active{width:26px;background:#60a5fa}
-.latest-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;width:100%}.latest-card{background:#fff;border:1px solid #e3e8ef;border-radius:11px;padding:8px;box-shadow:0 3px 11px rgba(15,23,42,.045);min-height:0;display:block;transition:transform .16s ease,box-shadow .16s ease}.latest-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.08)}.latest-image{width:100%;height:128px;border-radius:8px;overflow:hidden;background:#eef2f7}.latest-image img{width:100%;height:100%;object-fit:cover;display:block}.latest-content{padding:9px 3px 3px}.latest-tags{margin-bottom:6px}.latest-tag{display:inline-block;border-radius:4px;padding:3px 6px;font-size:7px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;background:#eef4ff;color:#2563eb;margin-right:5px}.latest-title{font-size:15px;font-weight:850;line-height:1.28;margin-bottom:5px;letter-spacing:-.15px}.latest-title a{color:#0f172a;text-decoration:none}.latest-title a:hover{color:#2563eb}.latest-desc{font-size:10.5px;line-height:1.4;color:#64748b;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.latest-meta{margin-top:8px;font-size:8px;color:#64748b;font-weight:700}
+.latest-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;width:100%}.latest-card{background:#fff;border:1px solid #e3e8ef;border-radius:11px;padding:8px;box-shadow:0 3px 11px rgba(15,23,42,.045);min-height:0;display:block;transition:transform .16s ease,box-shadow .16s ease}.latest-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,23,42,.08)}.latest-image{width:100%;height:128px;border-radius:8px;overflow:hidden;background:#eef2f7}.latest-image img{width:100%;height:100%;object-fit:cover;display:block}.image-unavailable{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#111c31,#24324a);color:#94a3b8;font-size:9px;font-weight:900;letter-spacing:1.2px}.latest-content{padding:9px 3px 3px}.latest-tags{margin-bottom:6px}.latest-tag{display:inline-block;border-radius:4px;padding:3px 6px;font-size:7px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;background:#eef4ff;color:#2563eb;margin-right:5px}.latest-title{font-size:15px;font-weight:850;line-height:1.28;margin-bottom:5px;letter-spacing:-.15px}.latest-title a{color:#0f172a;text-decoration:none}.latest-title a:hover{color:#2563eb}.latest-desc{font-size:10.5px;line-height:1.4;color:#64748b;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.latest-meta{margin-top:8px;font-size:8px;color:#64748b;font-weight:700}
 @media(max-width:1200px){.latest-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.feature-body{width:72%}}@media(max-width:900px){.header-search{display:none}.latest-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.feature-slide{height:225px}}@media(max-width:600px){.latest-grid{grid-template-columns:1fr}.feature-slide{height:330px}.feature-body{width:100%;padding:22px}.feature-title{font-size:21px}.feature-desc{font-size:11px}}
 </style>
 """,
@@ -201,18 +201,13 @@ def card(row):
     category = escape(str(row.get("category") or "News"))
     image = escape(str(row.get("image_url") or ""), quote=True)
 
-    # NewsData image_url is preferred. The provider also recovers og:image/twitter:image
-    # from the article page when NewsData does not return one.
-    fallback_images = {
-        "Global Banks": "https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=900&q=80",
-        "Regulation": "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=80",
-        "Cyber & Tech": "https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=900&q=80",
-        "Transformation": "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=900&q=80",
-        "People": "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=900&q=80",
-    }
-    fallback = fallback_images.get(category, fallback_images["Global Banks"])
-    img_src = image or fallback
-    img_html = f'<img src="{img_src}" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'{fallback}\';" />'
+    # ONLY use the article-specific image returned/recovered by the provider.
+    # Never substitute a category stock image because that makes unrelated
+    # stories appear to have the same photograph.
+    if image:
+        img_html = f'<img src="{image}" alt="" loading="lazy" onerror="this.parentElement.classList.add(\'image-unavailable\');this.remove();" />'
+    else:
+        img_html = '<div class="image-unavailable"><span>IMAGE UNAVAILABLE</span></div>'
     link = f'<a href="{escape(url, quote=True)}" target="_blank">{title}</a>' if url else title
 
     return f"""
@@ -243,10 +238,9 @@ def render_featured_carousel(rows):
         source = escape(str(row.get("source") or "Unknown"))
         image = escape(str(row.get("image_url") or ""), quote=True)
         url = str(row.get("url") or "").strip()
-        fallback = "https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=1600&q=80"
         img_html = (
-            f'<img src="{image}" alt="" onerror="this.onerror=null;this.src=\'{fallback}\';">'
-            if image else f'<img src="{fallback}" alt="">'
+            f'<img src="{image}" alt="" onerror="this.parentElement.innerHTML=\'<div class="image-unavailable"><span>IMAGE UNAVAILABLE</span></div>\';">'
+            if image else '<div class="image-unavailable"><span>IMAGE UNAVAILABLE</span></div>'
         )
         title_html = f'<a href="{escape(url, quote=True)}" target="_blank">{title}</a>' if url else title
         slides.append(
