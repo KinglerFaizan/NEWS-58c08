@@ -16,6 +16,7 @@ import news_providers as npv
 # ============================================================
 
 st.set_page_config(
+DEPLOYMENT_BUILD = "2026-09-22-newsdata-fix-v2"
     page_title="Audit Intelligence | Global Banking News",
     page_icon="📡",
     layout="wide",
